@@ -1,0 +1,58 @@
+<?php
+// process_data.php
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $cargo_name = $_POST['cargo_name'];
+    $cargo_dimensions = $_POST['cargo_dimensions'];
+    $address_from = $_POST['address_from'];
+    $address_to = $_POST['address_to'];
+    $date_send = $_POST['date_send'];
+    $nickname_telegram = $_POST['nickname_telegram'];
+    $desired_date = $_POST['desired_date'];
+    $check_correctness = $_POST['check_correctness'];
+    $phone_contact = $_POST['phone_contact'];
+    
+    // Здесь обрабатываем данные
+    echo "<h1>Данные успешно получены</h1>";
+    echo "<pre>";
+    var_dump($cargo_name);
+    var_dump($cargo_dimensions);
+    var_dump($address_from);
+    var_dump($address_to);
+    var_dump($date_send);
+    var_dump($nickname_telegram);
+    var_dump($desired_date);
+    var_dump($check_correctness);
+    var_dump($phone_contact);
+    echo "</pre>";
+    
+    // Пример записи данных в базу данных
+    if (!empty($cargo_name) && !empty($cargo_dimensions) && !empty($address_from) && !empty($address_to) && !empty($date_send) && !empty($nickname_telegram) && !empty($desired_date) && !empty($check_correctness) && !empty($phone_contact)) {
+        try {
+            require_once('database.php');
+            
+            $db = new Database();
+            $query = "INSERT INTO shipments (cargo_name, cargo_dimensions, address_from, address_to, date_send, nickname_telegram, desired_date, check_correctness, phone_contact) VALUES (:cargo_name, :cargo_dimensions, :address_from, :address_to, :date_send, :nickname_telegram, :desired_date, :check_correctness, :phone_contact)";
+            $stmt = $db->prepare($query);
+            $stmt->execute([
+                ':cargo_name' => $cargo_name,
+                ':cargo_dimensions' => $cargo_dimensions,
+                ':address_from' => $address_from,
+                ':address_to' => $address_to,
+                ':date_send' => $date_send,
+                ':nickname_telegram' => $nickname_telegram,
+                ':desired_date' => $desired_date,
+                ':check_correctness' => $check_correctness,
+                ':phone_contact' => $phone_contact
+            ]);
+            
+            echo "Информация о перевозке успешно сохранена в базе данных.";
+        } catch (\PDOException $e) {
+            echo "Ошибка базы данных: " . $e->getMessage();
+        }
+    } else {
+        echo "Не все обязательные поля заполнены.<br>Пожалуйста, проверьте и попробуйте снова.";
+    }
+} else {
+    echo "Ошибка при отправке данных.";
+}
+?>
