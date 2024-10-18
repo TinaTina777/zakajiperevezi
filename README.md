@@ -127,3 +127,93 @@
   </body>
 </html>
 
+
+///
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>zakajiperevezi | для бота закажи перевези</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="zakajiperevezi" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="для бота закажи перевези" />
+<meta property="og:description" content="для бота закажи перевези" />
+<link rel="canonical" href="https://tinatina777.github.io/zakajiperevezi/" />
+<meta property="og:url" content="https://tinatina777.github.io/zakajiperevezi/" />
+<meta property="og:site_name" content="zakajiperevezi" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="zakajiperevezi" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebSite","description":"для бота закажи перевези","headline":"zakajiperevezi","name":"zakajiperevezi","url":"https://tinatina777.github.io/zakajiperevezi/"}</script>
+<!-- End Jekyll SEO tag -->
+
+    <link rel="stylesheet" href="/zakajiperevezi/assets/css/style.css?v=69b752e7bc8313dd746969e9bad35d631f5020c1">
+    <!-- start custom head snippets, customize with your own _includes/head-custom.html file -->
+
+<!-- Setup Google Analytics -->
+
+
+
+<!-- You can set your favicon here -->
+<!-- link rel="shortcut icon" type="image/x-icon" href="/zakajiperevezi/favicon.ico" -->
+
+<!-- end custom head snippets -->
+
+  </head>
+  <body>
+    <div class="container-lg px-3 my-5 markdown-body">
+      
+
+      <h1 id="zakajiperevezi">zakajiperevezi</h1>
+<p>для бота закажи перевези
+&lt;!DOCTYPE html&gt;</p>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <title>Форма</title>
+</head>
+<body>
+    <form action="" method="post">
+        <label for="name">Наименование:</label><br />
+        <input type="text" id="name" name="name" /><br />
+        <label for="weight">Вес:</label><br />
+        <input type="number" id="weight" name="weight" /><br />
+        <label for="length">Длина:</label><br />
+        <input type="number" id="length" name="length" /><br />
+        <label for="width">Ширина:</label><br />
+        <input type="number" id="width" name="width" /><br />
+        <label for="depth">Глубина:</label><br />
+        <input type="number" id="depth" name="depth" /><br />
+        <button type="submit">Отправить</button>
+    </form>
+</body>
+</html>
+<p>&lt;?php
+if ($_SERVER[‘REQUEST_METHOD’] === ‘POST’) {
+    $name = $_POST[‘name’];
+    $weight = $_POST[‘weight’];
+    $length = $_POST[‘length’];
+    $width = $_POST[‘width’];
+    $depth = $_POST[‘depth’];</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>// Здесь обрабатываем данные
+echo "Наименование: $name&lt;br&gt;";
+echo "Вес: $weight&lt;br&gt;";
+echo "Габариты: $length x $width x $depth&lt;br&gt;"; } else {
+echo "Ошибка при отправке данных."; } ?&gt;
+</code></pre></div></div>
+
+
+      
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/4.1.0/anchor.min.js" integrity="sha256-lZaRhKri35AyJSypXXs4o6OPFTbTmUoltBbDCbdzegg=" crossorigin="anonymous"></script>
+    <script>anchors.add();</script>
+  </body>
+</html>
+
