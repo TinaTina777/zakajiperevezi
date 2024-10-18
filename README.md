@@ -22,3 +22,19 @@
     </form>
 </body>
 </html>
+<?php
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $name = $_POST['name'];
+    $weight = $_POST['weight'];
+    $length = $_POST['length'];
+    $width = $_POST['width'];
+    $depth = $_POST['depth'];
+    
+    // Здесь обрабатываем данные
+    echo "Наименование: $name<br>";
+    echo "Вес: $weight<br>";
+    echo "Габариты: $length x $width x $depth<br>";
+} else {
+    echo "Ошибка при отправке данных.";
+}
+?>
