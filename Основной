@@ -53,6 +53,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo "Не все обязательные поля заполнены.<br>Пожалуйста, проверьте и попробуйте снова.";
     }
 } else {
+
+<?php
+class Database {
+    private $connection;
+    
+    public function __construct() {
+        try {
+            $this->connection = new PDO("mysql:host=localhost;dbname=your_database_name", "username", "password");
+            $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        } catch (PDOException $e) {
+            die("Ошибка базы данных: " . $e->getMessage());
+        }
+    }
+    
+    public function prepare($query) {
+        return $this->connection->prepare($query);
+    }
+    
+    public function execute($statement) {
+        return $statement->execute();
+    }
+}
+?>
     echo "Ошибка при отправке данных.";
 }
 ?>
