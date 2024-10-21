@@ -1,6 +1,3 @@
-# zakajiperevezi
-для бота закажи перевези
-
 <!DOCTYPE html>
 <html lang="ru">
   <head>
@@ -70,6 +67,17 @@
         width: 100%;
       }
 
+      /* Стиль для проверки валидности */
+      .valid {
+        color: green;
+        font-weight: bold;
+      }
+
+      .invalid {
+        color: red;
+        font-weight: bold;
+      }
+
       /* Адаптивность */
       @media (max-width: 600px) {
         body {
@@ -102,18 +110,22 @@
 
       <label for="fromAddress">Укажите, пожалуйста, адрес отправки:</label>
       <input type="text" id="fromAddress" placeholder="Город, Улица, Дом" />
+      <div id="fromAddressValidation" class="invalid"></div>
 
       <label for="toAddress">Укажите, пожалуйста, адрес доставки:</label>
       <input type="text" id="toAddress" placeholder="Город, Улица, Дом" />
+      <div id="toAddressValidation" class="invalid"></div>
 
       <label for="sendDate">Укажите, пожалуйста, дату отправки:</label>
       <input type="date" id="sendDate" />
 
       <label for="telegram">Укажите, пожалуйста, никнейм в Телеграм:</label>
       <input type="text" id="telegram" placeholder="@username" />
+      <div id="telegramValidation" class="invalid"></div>
 
       <label for="phone">Укажите, пожалуйста, телефон для связи:</label>
       <input type="tel" id="phone" placeholder="+7 999 999 9999" />
+      <div id="phoneValidation" class="invalid"></div>
 
       <button onclick="submitForm()">Проверьте, пожалуйста, всё указано корректно?</button>
 
@@ -121,10 +133,10 @@
     </main>
 
     <script>
-      async function validateAddress(address) {
-        const token = 'ab83f3d5c9fdc990f8b067ba9c70220d2a52d01d'; // Публичный ключ DaData
-        const url = 'https://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/address';
+      const token = 'ab83f3d5c9fdc990f8b067ba9c70220d2a52d01d'; // API-ключ DaData
 
+      async function validateAddress(address, validationElementId) {
+        const url = 'https://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/address';
         const response = await fetch(url, {
           method: 'POST',
           headers: {
@@ -138,10 +150,49 @@
         });
 
         const data = await response.json();
+        const validationElement = document.getElementById(validationElementId);
+
         if (data.suggestions.length > 0) {
+          validationElement.textContent = 'Адрес корректен';
+          validationElement.classList.remove('invalid');
+          validationElement.classList.add('valid');
           return data.suggestions[0].value;
         } else {
+          validationElement.textContent = 'Введите, пожалуйста, существующий адрес';
+          validationElement.classList.remove('valid');
+          validationElement.classList.add('invalid');
           return null;
+        }
+      }
+
+      function validateTelegram(nick) {
+        const validationElement = document.getElementById('telegramValidation');
+        if (nick && nick.startsWith('@')) {
+          validationElement.textContent = 'Никнейм корректен';
+          validationElement.classList.remove('invalid');
+          validationElement.classList.add('valid');
+          return true;
+        } else {
+          validationElement.textContent = 'Введите корректный никнейм (@username)';
+          validationElement.classList.remove('valid');
+          validationElement.classList.add('invalid');
+          return false;
+        }
+      }
+
+      function validatePhone(phone) {
+        const validationElement = document.getElementById('phoneValidation');
+        const phonePattern = /^\+7\s?\d{3}\s?\d{3}\s?\d{2}\s?\d{2}$/;
+        if (phonePattern.test(phone)) {
+          validationElement.textContent = 'Телефон корректен';
+          validationElement.classList.remove('invalid');
+          validationElement.classList.add('valid');
+          return true;
+        } else {
+          validationElement.textContent = 'Введите корректный номер телефона (+7 999 999 9999)';
+          validationElement.classList.remove('valid');
+          validationElement.classList.add('invalid');
+          return false;
         }
       }
 
@@ -154,27 +205,24 @@
         const telegram = document.getElementById('telegram').value;
         const phone = document.getElementById('phone').value;
 
-        const validatedFromAddress = await validateAddress(fromAddress);
-        const validatedToAddress = await validateAddress(toAddress);
+        const validatedFromAddress = await validateAddress(fromAddress, 'fromAddressValidation');
+        const validatedToAddress = await validateAddress(toAddress, 'toAddressValidation');
+        const telegramValid = validateTelegram(telegram);
+        const phoneValid = validatePhone(phone);
 
-        if (!validatedFromAddress) {
-          alert('Адрес отправки некорректен. Пожалуйста, проверьте и попробуйте снова.');
-          return;
-        }
-
-        if (!validatedToAddress) {
-          alert('Адрес доставки некорректен. Пожалуйста, проверьте и попробуйте снова.');
+        if (!validatedFromAddress || !validatedToAddress || !telegramValid || !phoneValid) {
+          alert('Пожалуйста, исправьте ошибки в форме.');
           return;
         }
 
         const output = `
-          <p><strong>Наименование груза:</strong> ${cargo}</p>
-          <p><strong>Габариты:</strong> ${dimensions}</p>
-          <p><strong>Адрес отправки:</strong> ${validatedFromAddress}</p>
-          <p><strong>Адрес доставки:</strong> ${validatedToAddress}</p>
-          <p><strong>Дата отправки:</strong> ${sendDate}</p>
-          <p><strong>Никнейм в Телеграм:</strong> ${telegram}</p>
-          <p><strong>Телефон:</strong> ${phone}</p>
+          ✅ <strong>Наименование:</strong> ${cargo}<br>
+          📦 <strong>Габариты:</strong> ${dimensions} м<br>
+          🏚️ <strong>Адрес отправления:</strong> ${validatedFromAddress}<br>
+          🏠 <strong>Адрес доставки:</strong> ${validatedToAddress}<br>
+          📅 <strong>Дата отправки:</strong> ${sendDate}<br>
+          ➤ <strong>Цену писать в телеграмм:</strong> ${telegram}<br>
+          📲 <strong>Телефон для связи:</strong> ${phone}<br>
         `;
 
         document.getElementById('output').innerHTML = output;
