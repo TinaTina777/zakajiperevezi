@@ -121,7 +121,31 @@
     </main>
 
     <script>
-      function submitForm() {
+      async function validateAddress(address) {
+        const token = 'ab83f3d5c9fdc990f8b067ba9c70220d2a52d01d'; // Публичный ключ DaData
+        const url = 'https://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/address';
+
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Token ${token}`,
+          },
+          body: JSON.stringify({
+            query: address,
+            count: 1,
+          }),
+        });
+
+        const data = await response.json();
+        if (data.suggestions.length > 0) {
+          return data.suggestions[0].value;
+        } else {
+          return null;
+        }
+      }
+
+      async function submitForm() {
         const cargo = document.getElementById('cargo').value;
         const dimensions = document.getElementById('dimensions').value;
         const fromAddress = document.getElementById('fromAddress').value;
@@ -130,11 +154,24 @@
         const telegram = document.getElementById('telegram').value;
         const phone = document.getElementById('phone').value;
 
+        const validatedFromAddress = await validateAddress(fromAddress);
+        const validatedToAddress = await validateAddress(toAddress);
+
+        if (!validatedFromAddress) {
+          alert('Адрес отправки некорректен. Пожалуйста, проверьте и попробуйте снова.');
+          return;
+        }
+
+        if (!validatedToAddress) {
+          alert('Адрес доставки некорректен. Пожалуйста, проверьте и попробуйте снова.');
+          return;
+        }
+
         const output = `
           <p><strong>Наименование груза:</strong> ${cargo}</p>
           <p><strong>Габариты:</strong> ${dimensions}</p>
-          <p><strong>Адрес отправки:</strong> ${fromAddress}</p>
-          <p><strong>Адрес доставки:</strong> ${toAddress}</p>
+          <p><strong>Адрес отправки:</strong> ${validatedFromAddress}</p>
+          <p><strong>Адрес доставки:</strong> ${validatedToAddress}</p>
           <p><strong>Дата отправки:</strong> ${sendDate}</p>
           <p><strong>Никнейм в Телеграм:</strong> ${telegram}</p>
           <p><strong>Телефон:</strong> ${phone}</p>
