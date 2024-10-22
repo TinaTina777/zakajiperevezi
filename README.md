@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8" />
@@ -145,7 +146,14 @@ function submitForm() {
 function sendToTelegram(output, requestNumber, telegram, phone) {
     const message = `
 📝Номер заявки: ${requestNumber}
-${output.replace(/<\/?[^>]+(>|$)/g, "")}
+✅ Наименование: ${document.getElementById('cargo').value}
+📦 Габариты: ${document.getElementById('dimensions').value} м
+🏚️ Адрес отправления: ${document.getElementById('fromAddress').value}
+🏠 Адрес доставки: ${document.getElementById('toAddress').value}
+📅 Дата отправки: ${new Date(document.getElementById('sendDate').value).toLocaleDateString('ru-RU')}
+⛟ Маршрут в Яндекс.Картах: https://yandex.ru/maps/?rtext=${encodeURIComponent(document.getElementById('fromAddress').value)}~${encodeURIComponent(document.getElementById('toAddress').value)}&rtt=auto
+➤ Предложения по цене присылать: https://t.me/${telegram}
+📲 Телефон для связи: ${phone}
 
 📰 Заявка направлена в канал в телеграмм Закажи. Перевези 🚚 (https://t.me/zaka_p)
 ➤ Перевозчики будут направлять свои предложения в телеграмм для t.me/${telegram}
