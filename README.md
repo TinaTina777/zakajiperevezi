@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
@@ -119,20 +120,28 @@
       <input type="date" id="sendDate" />
 
       <label for="telegram">Укажите, пожалуйста, никнейм в Телеграм:</label>
-      <input type="text" id="telegram" placeholder="@username" />
+      <input type="text" id="telegram" placeholder="username" />
       <div id="telegramValidation" class="invalid"></div>
 
       <label for="phone">Укажите, пожалуйста, телефон для связи:</label>
-      <input type="tel" id="phone" placeholder="+7 999 999 9999" />
+      <input type="tel" id="phone" placeholder="+7 999 999 9999 или 8 999 999 9999" />
       <div id="phoneValidation" class="invalid"></div>
 
-      <button onclick="submitForm()">Проверьте, пожалуйста, всё указано корректно?</button>
+      <button onclick="submitForm()">Сформировать заявку</button>
 
       <div class="output" id="output"></div>
+      <button onclick="sendToTelegram()">Отправить</button>
     </main>
 
     <script>
       const token = 'ab83f3d5c9fdc990f8b067ba9c70220d2a52d01d'; // API-ключ DaData
+      const telegramBotToken = '7440917653:AAHLtEKyOJWYHna-YJtMj9wzCeCAx8OZzgk'; // API-ключ Telegram бота
+      const telegramChatId = '@zaka_p'; // ID канала Telegram для отправки
+
+      // Генерация уникального номера заявки
+      function generateOrderNumber() {
+        return Math.floor(Math.random() * (9999 - 343 + 1)) + 343;
+      }
 
       async function validateAddress(address, validationElementId) {
         const url = 'https://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/address';
@@ -166,13 +175,13 @@
 
       function validateTelegram(nick) {
         const validationElement = document.getElementById('telegramValidation');
-        if (nick && nick.startsWith('@')) {
+        if (nick) {
           validationElement.textContent = 'Никнейм корректен';
           validationElement.classList.remove('invalid');
           validationElement.classList.add('valid');
           return true;
         } else {
-          validationElement.textContent = 'Введите корректный никнейм (@username)';
+          validationElement.textContent = 'Введите корректный никнейм';
           validationElement.classList.remove('valid');
           validationElement.classList.add('invalid');
           return false;
@@ -181,17 +190,17 @@
 
       function validatePhone(phone) {
         const validationElement = document.getElementById('phoneValidation');
-        const phonePattern = /^\+7\s?\d{3}\s?\d{3}\s?\d{2}\s?\d{2}$/;
+        const phonePattern = /^(\+7|8)\s?\d{3}\s?\d{3}\s?\d{2}\s?\d{2}$/;
         if (phonePattern.test(phone)) {
           validationElement.textContent = 'Телефон корректен';
           validationElement.classList.remove('invalid');
           validationElement.classList.add('valid');
-          return true;
+          return phone.replace(/^8/, '7').replace(/^\+7/, '7').replace(/\s/g, '');
         } else {
-          validationElement.textContent = 'Введите корректный номер телефона (+7 999 999 9999)';
+          validationElement.textContent = 'Введите корректный номер телефона (+7 или 8)';
           validationElement.classList.remove('valid');
           validationElement.classList.add('invalid');
-          return false;
+          return null;
         }
       }
 
@@ -204,27 +213,53 @@
         const telegram = document.getElementById('telegram').value;
         const phone = document.getElementById('phone').value;
 
-        const validatedFromAddress = await validateAddress(fromAddress, 'fromAddressValidation');
-        const validatedToAddress = await validateAddress(toAddress, 'toAddressValidation');
-        const telegramValid = validateTelegram(telegram);
-        const phoneValid = validatePhone(phone);
+        const validFromAddress = await validateAddress(fromAddress, 'fromAddressValidation');
+        const validToAddress = await validateAddress(toAddress, 'toAddressValidation');
+        const validTelegram = validateTelegram(telegram);
+        const validPhone = validatePhone(phone);
 
-        if (!validatedFromAddress || !validatedToAddress || !telegramValid || !phoneValid) {
-          alert('Пожалуйста, исправьте ошибки в форме.');
-          return;
+        if (validFromAddress && validToAddress && validTelegram && validPhone) {
+          const orderNumber = generateOrderNumber();
+          const output = `
+            📝<p><strong>Номер заявки:</strong> ${orderNumber}</p>
+            ✅ <strong>Наименование:</strong> ${cargo}<br/>
+            📦 <strong>Габариты:</strong> ${dimensions}<br/>
+            🏚️ <strong>Адрес отправления:</strong> ${validFromAddress}<br/>
+            🏠 <strong>Адрес доставки:</strong> ${validToAddress}<br/>
+            📅 <strong>Дата отправки:</strong> ${sendDate}<br/>
+            ➤ <strong>Предложения по цене присылать:</strong> <a href="https://t.me/${telegram}">t.me/${telegram}</a><br/>
+            📲 <strong>Телефон для связи:</strong> ${validPhone}
+          `;
+
+          document.getElementById('output').innerHTML = output;
+        } else {
+          alert('Пожалуйста, исправьте ошибки в форме');
         }
+      }
 
-        const output = `
-          ✅ <strong>Наименование:</strong> ${cargo}<br>
-          📦 <strong>Габариты:</strong> ${dimensions} м<br>
-          🏚️ <strong>Адрес отправления:</strong> ${validatedFromAddress}<br>
-          🏠 <strong>Адрес доставки:</strong> ${validatedToAddress}<br>
-          📅 <strong>Дата отправки:</strong> ${sendDate}<br>
-          ➤ <strong>Цену писать в телеграмм:</strong> ${telegram}<br>
-          📲 <strong>Телефон для связи:</strong> ${phone}<br>
-        `;
+      function sendToTelegram() {
+        const message = document.getElementById('output').innerText;
+        const url = `https://api.telegram.org/bot${telegramBotToken}/sendMessage`;
 
-        document.getElementById('output').innerHTML = output;
+        fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            chat_id: telegramChatId,
+            text: message,
+            parse_mode: 'HTML',
+          }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.ok) {
+              alert('Заявка отправлена в Telegram');
+            } else {
+              alert('Ошибка отправки заявки');
+            }
+          });
       }
     </script>
   </body>
