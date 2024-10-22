@@ -1,4 +1,4 @@
-03:05
+3:09
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
@@ -209,7 +209,7 @@
         const dimensions = document.getElementById('dimensions').value;
         const fromAddress = document.getElementById('fromAddress').value;
         const toAddress = document.getElementById('toAddress').value;
-        const sendDateInput = document.getElementById('sendDate').value;
+        const sendDate = document.getElementById('sendDate').value;
         const telegram = document.getElementById('telegram').value;
         const phone = document.getElementById('phone').value;
 
@@ -219,23 +219,16 @@
         const validPhone = validatePhone(phone);
 
         if (validFromAddress && validToAddress && validTelegram && validPhone) {
-          // Форматируем дату в формате DD.MM.YYYY
-          const sendDate = new Date(sendDateInput);
-          const formattedSendDate = `${String(sendDate.getDate()).padStart(2, '0')}.${String(sendDate.getMonth() + 1).padStart(2, '0')}.${sendDate.getFullYear()}`;
-
           const orderNumber = generateOrderNumber();
-          const routeLink = `https://yandex.ru/maps/?rtext=${encodeURIComponent(validFromAddress)}~${encodeURIComponent(validToAddress)}`;
           const output = `
             <p><strong>Номер заявки:</strong> ${orderNumber}</p>
-            ✅ <strong>Наименование:</strong> <strong>${cargo}</strong><br/>
-            📦 <strong>Габариты:</strong> <strong>${dimensions}</strong><br/>
-            🏚️ <strong>Адрес отправления:</strong> <strong>${validFromAddress}</strong><br/>
-            🏠 <strong>Адрес доставки:</strong> <strong>${validToAddress}</strong><br/>
-            📅 <strong>Дата отправки:</strong> <strong>${formattedSendDate}</strong><br/>
-            ⛟ <strong>Маршрут в Яндекс.Картах:</strong> <a href="${routeLink}" target="_blank">Ссылка на маршрут</a><br/>
+            ✅ <strong>Наименование:</strong> ${cargo}<br/>
+            📦 <strong>Габариты:</strong> ${dimensions}<br/>
+            🏚️ <strong>Адрес отправления:</strong> ${validFromAddress}<br/>
+            🏠 <strong>Адрес доставки:</strong> ${validToAddress}<br/>
+            📅 <strong>Дата отправки:</strong> ${sendDate}<br/>
             ➤ <strong>Предложения по цене присылать:</strong> <a href="https://t.me/${telegram}">t.me/${telegram}</a><br/>
-            📲 <strong>Телефон для связи:</strong> <strong>+7 ${validPhone}</strong><br/>
-            
+            📲 <strong>Телефон для связи:</strong> ${validPhone}
           `;
 
           document.getElementById('output').innerHTML = output;
