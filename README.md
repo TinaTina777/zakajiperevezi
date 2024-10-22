@@ -62,7 +62,6 @@
             border-radius: 8px;
             width: 100%;
         }
-        /* Стиль для проверки валидности */
         .valid {
             color: green;
             font-weight: bold;
@@ -71,7 +70,6 @@
             color: red;
             font-weight: bold;
         }
-        /* Адаптивность */
         @media (max-width: 600px) {
             body {
                 padding: 10px;
@@ -122,7 +120,6 @@
         const telegramBotToken = '7440917653:AAHLtEKyOJWYHna-YJtMj9wzCeCAx8OZzgk'; // API-ключ Telegram бота
         const telegramChatId = '@zaka_p'; // ID канала Telegram для отправки
 
-        // Генерация уникального номера заявки
         function generateOrderNumber() {
             return Math.floor(Math.random() * (9999 - 343 + 1)) + 343;
         }
@@ -144,7 +141,7 @@
             const data = await response.json();
             const validationElement = document.getElementById(validationElementId);
 
-            if (data.suggestions.length > 0) {
+            if (data.suggestions && data.suggestions.length > 0) {
                 validationElement.textContent = 'Адрес корректен';
                 validationElement.classList.remove('invalid');
                 validationElement.classList.add('valid');
@@ -158,7 +155,7 @@
         }
 
         async function getCoordinates(address) {
-            const url = 'https://suggestions.dadata.ru/suggestions/api/4_1/rs/geolocate';
+            const url = 'https://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/address';
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
@@ -167,14 +164,20 @@
                 },
                 body: JSON.stringify({
                     query: address,
+                    count: 1,
                 }),
             });
 
+            if (!response.ok) {
+                console.error('Ошибка при получении координат:', response.statusText);
+                return null;
+            }
+
             const data = await response.json();
-            if (data.locations && data.locations.length > 0) {
+            if (data.suggestions && data.suggestions.length > 0) {
                 return {
-                    latitude: data.locations[0].geo_lat,
-                    longitude: data.locations[0].geo_lon,
+                    latitude: data.suggestions[0].data.geo_lat,
+                    longitude: data.suggestions[0].data.geo_lon,
                 };
             } else {
                 return null;
@@ -203,7 +206,6 @@
                 validationElement.textContent = 'Телефон корректен';
                 validationElement.classList.remove('invalid');
                 validationElement.classList.add('valid');
-                // Заменяем 8 на +7 и удаляем пробелы
                 return phone.replace(/^8/, '+7').replace(/\s/g, '');
             } else {
                 validationElement.textContent = 'Введите корректный номер телефона (+7 или 8)';
@@ -233,11 +235,10 @@
 
                 if (fromCoords && toCoords) {
                     const orderNumber = generateOrderNumber();
-                    // Форматируем дату в формате DD.MM.YYYY
                     const formattedSendDate = new Date(sendDate).toLocaleDateString('ru-RU', {
                         day: '2-digit',
                         month: '2-digit',
-                        year: 'numeric'
+                        year: 'numeric',
                     });
 
                     const yandexMapLink = `https://yandex.ru/maps/?rtext=${fromCoords.latitude},${fromCoords.longitude}~${toCoords.latitude},${toCoords.longitude}&rtt=auto`;
@@ -256,7 +257,7 @@
 
                     document.getElementById('output').innerHTML = output;
                 } else {
-                    alert('Не удалось получить координаты для адресов.');
+                    alert('Не удалось получить координаты для адресов. Пожалуйста, проверьте их правильность.');
                 }
             } else {
                 alert('Пожалуйста, исправьте ошибки в форме');
