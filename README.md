@@ -219,6 +219,7 @@
 
         if (validFromAddress && validToAddress && validTelegram && validPhone) {
           const orderNumber = generateOrderNumber();
+          const formattedSendDate = new Date(sendDate).toLocaleDateString('ru-RU');
           const yandexMapLink = `https://yandex.ru/maps/?rtext=${encodeURIComponent(fromAddress)}~${encodeURIComponent(toAddress)}&rtt=auto`;
           const output = `
             📝<strong>Номер заявки:</strong> ${orderNumber}<br/>
