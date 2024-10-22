@@ -217,6 +217,16 @@
         const validTelegram = validateTelegram(telegram);
         const validPhone = validatePhone(phone);
 
+        function formatPhoneNumber(phone) {
+    let cleaned = phone.replace(/\D/g, '');
+    if (cleaned.startsWith('8')) {
+        cleaned = '7' + cleaned.slice(1);
+    } else if (cleaned.startsWith('7')) {
+        return '+' + cleaned;
+    }
+    return '+7' + cleaned;
+}
+
         if (validFromAddress && validToAddress && validTelegram && validPhone) {
           const orderNumber = generateOrderNumber();
           const formattedSendDate = new Date(sendDate).toLocaleDateString('ru-RU');
