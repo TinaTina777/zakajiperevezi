@@ -194,7 +194,8 @@
           validationElement.textContent = 'Телефон корректен';
           validationElement.classList.remove('invalid');
           validationElement.classList.add('valid');
-          return phone.replace(/^8/, '7').replace(/^\+7/, '7').replace(/\s/g, '');
+          // Заменяем 8 на +7 и удаляем пробелы
+          return phone.replace(/^8/, '+7').replace(/\s/g, '');
         } else {
           validationElement.textContent = 'Введите корректный номер телефона (+7 или 8)';
           validationElement.classList.remove('valid');
@@ -217,22 +218,27 @@
         const validTelegram = validateTelegram(telegram);
         const validPhone = validatePhone(phone);
 
-       
-
         if (validFromAddress && validToAddress && validTelegram && validPhone) {
           const orderNumber = generateOrderNumber();
-          const formattedSendDate = new Date(sendDate).toLocaleDateString('ru-RU');
+          // Форматируем дату в формате DD.MM.YYYY
+          const formattedSendDate = new Date(sendDate).toLocaleDateString('ru-RU', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+          });
+
           const yandexMapLink = `https://yandex.ru/maps/?rtext=${encodeURIComponent(fromAddress)}~${encodeURIComponent(toAddress)}&rtt=auto`;
           const output = `
+            <img src="https://telesearching.com/wp-content/uploads/2024/02/2024-02-06_18-00-18.png" alt="Картинка заявки" style="max-width: 100%; height: auto;" /><br />
             📝<strong>Номер заявки:</strong> ${orderNumber}<br/>
-            ✅ <strong>Наименование:</strong> ${cargo}<br/>
-            📦 <strong>Габариты:</strong> ${dimensions}<br/>
-            🏚️ <strong>Адрес отправления:</strong> ${validFromAddress}<br/>
-            🏠 <strong>Адрес доставки:</strong> ${validToAddress}<br/>
-            📅 <strong>Дата отправки:</strong> ${formattedSendDate}<br/>
+            ✅ <strong>Наименование:</strong> <strong>${cargo}</strong><br/>
+            📦 <strong>Габариты:</strong> <strong>${dimensions}</strong><br/>
+            🏚️ <strong>Адрес отправления:</strong> <strong>${validFromAddress}</strong><br/>
+            🏠 <strong>Адрес доставки:</strong> <strong>${validToAddress}</strong><br/>
+            📅 <strong>Дата отправки:</strong> <strong>${formattedSendDate}</strong><br/>
             ⛟ <strong><a href="${yandexMapLink}" target="_blank">Маршрут в Яндекс.Картах</a></strong><br/>
             ➤ <strong>Предложения по цене присылать:</strong> <a href="https://t.me/${telegram}">t.me/${telegram}</a><br/>
-            📲 <strong>Телефон для связи:</strong> ${validPhone}
+            📲 <strong>Телефон для связи:</strong> <strong>${validPhone}</strong>
           `;
 
           document.getElementById('output').innerHTML = output;
@@ -242,7 +248,8 @@
       }
 
       function sendToTelegram() {
-        const message = document.getElementById('output').innerText;
+        // Добавляем изображение в сообщение, а текст преобразуем в HTML
+        const message = document.getElementById('output').innerHTML;
         const url = `https://api.telegram.org/bot${telegramBotToken}/sendMessage`;
 
         fetch(url, {
