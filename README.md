@@ -10,7 +10,6 @@
             user-select: none;
             box-sizing: border-box;
         }
-
         body {
             margin: 0;
             color: black;
@@ -20,7 +19,6 @@
             align-items: center;
             font-family: Arial, sans-serif;
         }
-
         main {
             max-width: 600px;
             width: 100%;
@@ -30,13 +28,11 @@
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-
         label {
             font-weight: bold;
             margin-bottom: 5px;
             display: block;
         }
-
         input,
         textarea {
             width: 100%;
@@ -46,7 +42,6 @@
             border-radius: 5px;
             font-size: 16px;
         }
-
         button {
             background-color: #4caf50;
             color: white;
@@ -57,11 +52,9 @@
             font-size: 16px;
             width: 100%;
         }
-
         button:hover {
             background-color: #45a049;
         }
-
         .output {
             margin-top: 20px;
             padding: 20px;
@@ -69,32 +62,28 @@
             border-radius: 8px;
             width: 100%;
         }
-
+        /* Стиль для проверки валидности */
         .valid {
             color: green;
             font-weight: bold;
         }
-
         .invalid {
             color: red;
             font-weight: bold;
         }
-
+        /* Адаптивность */
         @media (max-width: 600px) {
             body {
                 padding: 10px;
             }
-
             main {
                 margin: 10px;
                 padding: 15px;
             }
-
             button {
                 font-size: 14px;
             }
         }
-
         @media (min-width: 601px) {
             main {
                 margin: 40px auto;
@@ -107,31 +96,23 @@
         <h2>Форма заявки на перевозку</h2>
         <label for="cargo">Укажите, пожалуйста, наименование перевозимого груза:</label>
         <input type="text" id="cargo" placeholder="Груз" />
-
         <label for="dimensions">Укажите, пожалуйста, габариты (ВВ*ШШ*ДД) в метрах:</label>
         <input type="text" id="dimensions" placeholder="Например, 2*2,5*3" />
-
         <label for="fromAddress">Укажите, пожалуйста, адрес отправки:</label>
         <input type="text" id="fromAddress" placeholder="Город, Улица, Дом" />
         <div id="fromAddressValidation" class="invalid"></div>
-
         <label for="toAddress">Укажите, пожалуйста, адрес доставки:</label>
         <input type="text" id="toAddress" placeholder="Город, Улица, Дом" />
         <div id="toAddressValidation" class="invalid"></div>
-
         <label for="sendDate">Укажите, пожалуйста, дату отправки:</label>
         <input type="date" id="sendDate" />
-
         <label for="telegram">Укажите, пожалуйста, никнейм в Телеграм:</label>
         <input type="text" id="telegram" placeholder="username" />
         <div id="telegramValidation" class="invalid"></div>
-
         <label for="phone">Укажите, пожалуйста, телефон для связи:</label>
         <input type="tel" id="phone" placeholder="+7 999 999 9999 или 8 999 999 9999" />
         <div id="phoneValidation" class="invalid"></div>
-
         <button onclick="submitForm()">Сформировать заявку</button>
-
         <div class="output" id="output"></div>
         <button onclick="sendToTelegram()">Отправить</button>
     </main>
@@ -141,33 +122,9 @@
         const telegramBotToken = '7440917653:AAHLtEKyOJWYHna-YJtMj9wzCeCAx8OZzgk'; // API-ключ Telegram бота
         const telegramChatId = '@zaka_p'; // ID канала Telegram для отправки
 
+        // Генерация уникального номера заявки
         function generateOrderNumber() {
             return Math.floor(Math.random() * (9999 - 343 + 1)) + 343;
-        }
-
-        async function getCoordinates(address) {
-            const url = 'https://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/address';
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Token ${token}`,
-                },
-                body: JSON.stringify({
-                    query: address,
-                    count: 1,
-                }),
-            });
-
-            const data = await response.json();
-            if (data.suggestions.length > 0) {
-                return {
-                    latitude: data.suggestions[0].data.geo_lat,
-                    longitude: data.suggestions[0].data.geo_lon
-                };
-            } else {
-                return null;
-            }
         }
 
         async function validateAddress(address, validationElementId) {
@@ -200,6 +157,30 @@
             }
         }
 
+        async function getCoordinates(address) {
+            const url = 'https://suggestions.dadata.ru/suggestions/api/4_1/rs/geolocate';
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Token ${token}`,
+                },
+                body: JSON.stringify({
+                    query: address,
+                }),
+            });
+
+            const data = await response.json();
+            if (data.locations && data.locations.length > 0) {
+                return {
+                    latitude: data.locations[0].geo_lat,
+                    longitude: data.locations[0].geo_lon,
+                };
+            } else {
+                return null;
+            }
+        }
+
         function validateTelegram(nick) {
             const validationElement = document.getElementById('telegramValidation');
             if (nick) {
@@ -222,7 +203,8 @@
                 validationElement.textContent = 'Телефон корректен';
                 validationElement.classList.remove('invalid');
                 validationElement.classList.add('valid');
-                return phone.replace(/^8/, '7').replace(/^\+7/, '7').replace(/\s/g, '');
+                // Заменяем 8 на +7 и удаляем пробелы
+                return phone.replace(/^8/, '+7').replace(/\s/g, '');
             } else {
                 validationElement.textContent = 'Введите корректный номер телефона (+7 или 8)';
                 validationElement.classList.remove('valid');
@@ -246,31 +228,35 @@
             const validPhone = validatePhone(phone);
 
             if (validFromAddress && validToAddress && validTelegram && validPhone) {
-                const orderNumber = generateOrderNumber();
-                const formattedSendDate = new Date(sendDate).toLocaleDateString('ru-RU');
-
-                // Получение координат для адресов
-                const fromCoords = await getCoordinates(fromAddress);
-                const toCoords = await getCoordinates(toAddress);
+                const fromCoords = await getCoordinates(validFromAddress);
+                const toCoords = await getCoordinates(validToAddress);
 
                 if (fromCoords && toCoords) {
-                    const yandexMapLink = `https://yandex.ru/maps/?rtext=${toCoords.latitude},${toCoords.longitude}~${fromCoords.latitude},${fromCoords.longitude}&rtt=auto`;
+                    const orderNumber = generateOrderNumber();
+                    // Форматируем дату в формате DD.MM.YYYY
+                    const formattedSendDate = new Date(sendDate).toLocaleDateString('ru-RU', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric'
+                    });
 
+                    const yandexMapLink = `https://yandex.ru/maps/?rtext=${fromCoords.latitude},${fromCoords.longitude}~${toCoords.latitude},${toCoords.longitude}&rtt=auto`;
                     const output = `
+                        <img src="https://telesearching.com/wp-content/uploads/2024/02/2024-02-06_18-00-18.png" alt="Картинка заявки" style="max-width: 100%; height: auto;" /><br />
                         📝<strong>Номер заявки:</strong> ${orderNumber}<br/>
-                        ✅ <strong>Наименование:</strong> ${cargo}<br/>
-                        📦 <strong>Габариты:</strong> ${dimensions}<br/>
-                        🏚️ <strong>Адрес отправления:</strong> ${validFromAddress}<br/>
-                        🏠 <strong>Адрес доставки:</strong> ${validToAddress}<br/>
-                        📅 <strong>Дата отправки:</strong> ${formattedSendDate}<br/>
+                        ✅ <strong>Наименование:</strong> <strong>${cargo}</strong><br/>
+                        📦 <strong>Габариты:</strong> <strong>${dimensions}</strong><br/>
+                        🏚️ <strong>Адрес отправления:</strong> <strong>${validFromAddress}</strong><br/>
+                        🏠 <strong>Адрес доставки:</strong> <strong>${validToAddress}</strong><br/>
+                        📅 <strong>Дата отправки:</strong> <strong>${formattedSendDate}</strong><br/>
                         ⛟ <strong><a href="${yandexMapLink}" target="_blank">Маршрут в Яндекс.Картах</a></strong><br/>
                         ➤ <strong>Предложения по цене присылать:</strong> <a href="https://t.me/${telegram}">t.me/${telegram}</a><br/>
-                        📲 <strong>Телефон для связи:</strong> ${validPhone}
+                        📲 <strong>Телефон для связи:</strong> <strong>${validPhone}</strong>
                     `;
 
                     document.getElementById('output').innerHTML = output;
                 } else {
-                    alert('Ошибка получения координат для адресов.');
+                    alert('Не удалось получить координаты для адресов.');
                 }
             } else {
                 alert('Пожалуйста, исправьте ошибки в форме');
@@ -278,7 +264,8 @@
         }
 
         function sendToTelegram() {
-            const message = document.getElementById('output').innerText;
+            // Добавляем изображение в сообщение, а текст преобразуем в HTML
+            const message = document.getElementById('output').innerHTML;
             const url = `https://api.telegram.org/bot${telegramBotToken}/sendMessage`;
 
             fetch(url, {
