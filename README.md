@@ -192,6 +192,24 @@
         }
     }
 
+    async function getCoordinates(address) {
+        const url = 'https://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/address';
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Token ${token}`,
+            },
+            body: JSON.stringify({
+                query: address,
+                count: 1,
+            }),
+        });
+
+        const data = await response.json();
+        return data.suggestions.length > 0 ? data.suggestions[0].data.geo : null;
+    }
+
     async function submitForm() {
         const cargo = document.getElementById('cargo').value;
         const dimensions = document.getElementById('dimensions').value;
@@ -214,15 +232,23 @@
                 year: 'numeric'
             });
 
-            // Создаем ссылку на маршрут (координаты убраны)
+            // Получаем координаты (проверка не нужна, просто получаем)
+            const fromCoords = await getCoordinates(validFromAddress);
+            const toCoords = await getCoordinates(validToAddress);
+
+            // Формируем вывод информации
             const output = `
-                📝<strong>Номер заявки:</strong> ${orderNumber}<br/>
-                ✅ <strong>Наименование:</strong> <strong>${cargo}</strong><br/>
-                📦 <strong>Габариты:</strong> <strong>${dimensions}</strong><br/>
-                🏚️ <strong>Адрес отправления:</strong> <strong>${validFromAddress}</strong><br/>
-                🏠 <strong>Адрес доставки:</strong> <strong>${validToAddress}</strong><br/>
-                📅 <strong>Дата отправки:</strong> <strong>${formattedSendDate}</strong><br/>
-                ➤ <strong>Предложения по цене присылать:</strong> <a href="https://t.me/${telegram}">t.me/${telegram}</a><br/>
+                <strong>Заявка на перевозку</strong><br/>
+                <strong>Номер заявки:</strong> ${orderNumber}<br/>
+                <strong>Груз:</strong> ${cargo}<br/>
+                <strong>Габариты:</strong> ${dimensions}<br/>
+                <strong>Адрес отправки:</strong> ${validFromAddress}<br/>
+                <strong>Координаты адреса отправки:</strong> ${fromCoords ? `${fromCoords.latitude}, ${fromCoords.longitude}` : 'Неизвестны'}<br/>
+                <strong>Адрес доставки:</strong> ${validToAddress}<br/>
+                <strong>Координаты адреса доставки:</strong> ${toCoords ? `${toCoords.latitude}, ${toCoords.longitude}` : 'Неизвестны'}<br/>
+                <strong>Дата отправки:</strong> ${formattedSendDate}<br/>
+                📲 <strong>Никнейм в Телеграм:</strong> <strong>${telegram}</strong><br/>
+                <a href="https://t.me/${telegram}">t.me/${telegram}</a><br/>
                 📲 <strong>Телефон для связи:</strong> <strong>${validPhone}</strong>
             `;
 
@@ -236,6 +262,7 @@
         const message = document.getElementById('output').innerHTML;
         const photoUrl = 'https://i.postimg.cc/ZKNjyqQ5/dkar.jpg'; // Обновленный URL картинки
         const sendPhotoUrl = `https://api.telegram.org/bot${telegramBotToken}/sendPhoto`;
+        const sendMessageUrl = `https://api.telegram.org/bot${telegramBotToken}/sendMessage`;
 
         fetch(sendPhotoUrl, {
             method: 'POST',
@@ -253,6 +280,24 @@
             .then((data) => {
                 if (data.ok) {
                     alert('Заявка отправлена в Telegram');
+                } else {
+                    // Если ошибка отправки с картинкой, отправляем текстовое сообщение
+                    return fetch(sendMessageUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            chat_id: telegramChatId,
+                            text: message,
+                            parse_mode: 'HTML',
+                        }),
+                    });
+                }
+            })
+            .then((response) => {
+                if (response && response.ok) {
+                    alert('Заявка отправлена в Telegram без картинки');
                 } else {
                     alert('Ошибка отправки заявки');
                 }
