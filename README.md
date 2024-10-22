@@ -221,7 +221,7 @@
         if (validFromAddress && validToAddress && validTelegram && validPhone) {
           const orderNumber = generateOrderNumber();
           const output = `
-            📝<p><strong>Номер заявки:</strong> ${orderNumber}</p>
+            <p>📝<strong>Номер заявки:</strong> ${orderNumber}</p>
             ✅ <strong>Наименование:</strong> ${cargo}<br/>
             📦 <strong>Габариты:</strong> ${dimensions}<br/>
             🏚️ <strong>Адрес отправления:</strong> ${validFromAddress}<br/>
