@@ -146,6 +146,31 @@
             return Math.floor(Math.random() * (9999 - 343 + 1)) + 343;
         }
 
+        async function getCoordinates(address) {
+            const url = 'https://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/address';
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Token ${token}`,
+                },
+                body: JSON.stringify({
+                    query: address,
+                    count: 1,
+                }),
+            });
+
+            const data = await response.json();
+            if (data.suggestions.length > 0) {
+                return {
+                    latitude: data.suggestions[0].data.geo_lat,
+                    longitude: data.suggestions[0].data.geo_lon
+                };
+            } else {
+                return null;
+            }
+        }
+
         async function validateAddress(address, validationElementId) {
             const url = 'https://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/address';
             const response = await fetch(url, {
@@ -176,13 +201,30 @@
             }
         }
 
-        function validateAddressFields(address) {
+        function validateAddressFields(address, validationElementId) {
             const parts = address.split(',').map(part => part.trim());
+            const validationElement = document.getElementById(validationElementId);
+            let errorMessage = '';
+
             if (parts.length < 3) {
-                return false; // Убедитесь, что адрес состоит как минимум из города, улицы и дома
+                errorMessage = 'Введите полный адрес: город, улица и дом.';
+            } else {
+                const streetAndHouse = parts[1].split(' ').filter(part => part);
+                if (streetAndHouse.length < 2) {
+                    errorMessage = 'Введите улицу и номер дома.';
+                }
             }
-            const streetAndHouse = parts[1].split(' ').filter(part => part);
-            return streetAndHouse.length > 1; // Убедитесь, что улица и дом указаны
+
+            if (errorMessage) {
+                validationElement.textContent = errorMessage;
+                validationElement.classList.remove('valid');
+                validationElement.classList.add('invalid');
+                return false;
+            } else {
+                validationElement.classList.remove('invalid');
+                validationElement.classList.add('valid');
+                return true;
+            }
         }
 
         function validateTelegram(nick) {
@@ -227,26 +269,38 @@
 
             const validFromAddress = await validateAddress(fromAddress, 'fromAddressValidation');
             const validToAddress = await validateAddress(toAddress, 'toAddressValidation');
+            const fromAddressValid = validateAddressFields(fromAddress, 'fromAddressValidation');
+            const toAddressValid = validateAddressFields(toAddress, 'toAddressValidation');
             const validTelegram = validateTelegram(telegram);
             const validPhone = validatePhone(phone);
 
-            if (validateAddressFields(fromAddress) && validateAddressFields(toAddress) && validFromAddress && validToAddress && validTelegram && validPhone) {
+            if (validFromAddress && validToAddress && validTelegram && validPhone && fromAddressValid && toAddressValid) {
                 const orderNumber = generateOrderNumber();
                 const formattedSendDate = new Date(sendDate).toLocaleDateString('ru-RU');
-                const yandexMapLink = `https://yandex.ru/maps/?rtext=${encodeURIComponent(fromAddress)}~${encodeURIComponent(toAddress)}&rtt=auto`;
-                const output = `
-                    📝<strong>Номер заявки:</strong> ${orderNumber}<br/>
-                    ✅ <strong>Наименование:</strong> ${cargo}<br/>
-                    📦 <strong>Габариты:</strong> ${dimensions}<br/>
-                    🏚️ <strong>Адрес отправления:</strong> ${validFromAddress}<br/>
-                    🏠 <strong>Адрес доставки:</strong> ${validToAddress}<br/>
-                    📅 <strong>Дата отправки:</strong> ${formattedSendDate}<br/>
-                    ⛟ <strong><a href="${yandexMapLink}" target="_blank">Маршрут в Яндекс.Картах</a></strong><br/>
-                    ➤ <strong>Предложения по цене присылать:</strong> <a href="https://t.me/${telegram}">t.me/${telegram}</a><br/>
-                    📲 <strong>Телефон для связи:</strong> ${validPhone}
-                `;
+                
+                // Получение координат для адресов
+                const fromCoords = await getCoordinates(fromAddress);
+                const toCoords = await getCoordinates(toAddress);
+                
+                if (fromCoords && toCoords) {
+                    const yandexMapLink = `https://yandex.ru/maps/?rtext=${toCoords.latitude},${toCoords.longitude}~${fromCoords.latitude},${fromCoords.longitude}&rtt=auto`;
+                    
+                    const output = `
+                        📝<strong>Номер заявки:</strong> ${orderNumber}<br/>
+                        ✅ <strong>Наименование:</strong> ${cargo}<br/>
+                        📦 <strong>Габариты:</strong> ${dimensions}<br/>
+                        🏚️ <strong>Адрес отправления:</strong> ${validFromAddress}<br/>
+                        🏠 <strong>Адрес доставки:</strong> ${validToAddress}<br/>
+                        📅 <strong>Дата отправки:</strong> ${formattedSendDate}<br/>
+                        ⛟ <strong><a href="${yandexMapLink}" target="_blank">Маршрут в Яндекс.Картах</a></strong><br/>
+                        ➤ <strong>Предложения по цене присылать:</strong> <a href="https://t.me/${telegram}">t.me/${telegram}</a><br/>
+                        📲 <strong>Телефон для связи:</strong> ${validPhone}
+                    `;
 
-                document.getElementById('output').innerHTML = output;
+                    document.getElementById('output').innerHTML = output;
+                } else {
+                    alert('Ошибка получения координат для адресов.');
+                }
             } else {
                 alert('Пожалуйста, исправьте ошибки в форме');
             }
