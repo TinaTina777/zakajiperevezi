@@ -229,7 +229,7 @@
             📦 <strong>Габариты:</strong> ${dimensions}<br/>
             🏚️ <strong>Адрес отправления:</strong> ${validFromAddress}<br/>
             🏠 <strong>Адрес доставки:</strong> ${validToAddress}<br/>
-            📅 <strong>Дата отправки:</strong> ${sendDate}<br/>
+            📅 <strong>Дата отправки:</strong> ${formattedSendDate}<br/>
             ⛟ <strong><a href="${yandexMapLink}" target="_blank">Маршрут в Яндекс.Картах</a></strong><br/>
             ➤ <strong>Предложения по цене присылать:</strong> <a href="https://t.me/${telegram}">t.me/${telegram}</a><br/>
             📲 <strong>Телефон для связи:</strong> "+"${validPhone}
