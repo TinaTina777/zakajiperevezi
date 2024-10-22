@@ -141,7 +141,6 @@
         const telegramBotToken = '7440917653:AAHLtEKyOJWYHna-YJtMj9wzCeCAx8OZzgk'; // API-ключ Telegram бота
         const telegramChatId = '@zaka_p'; // ID канала Telegram для отправки
 
-        // Генерация уникального номера заявки
         function generateOrderNumber() {
             return Math.floor(Math.random() * (9999 - 343 + 1)) + 343;
         }
@@ -202,29 +201,31 @@
         }
 
         function validateAddressFields(address, validationElementId) {
-            const parts = address.split(',').map(part => part.trim());
             const validationElement = document.getElementById(validationElementId);
+            const parts = address.split(',');
+            let isValid = true;
             let errorMessage = '';
 
             if (parts.length < 3) {
                 errorMessage = 'Введите полный адрес: город, улица и дом.';
+                isValid = false;
             } else {
-                const streetAndHouse = parts[1].split(' ').filter(part => part);
+                const streetAndHouse = parts[1].trim().split(' ');
                 if (streetAndHouse.length < 2) {
                     errorMessage = 'Введите улицу и номер дома.';
+                    isValid = false;
                 }
             }
 
-            if (errorMessage) {
+            if (!isValid) {
                 validationElement.textContent = errorMessage;
                 validationElement.classList.remove('valid');
                 validationElement.classList.add('invalid');
-                return false;
             } else {
                 validationElement.classList.remove('invalid');
                 validationElement.classList.add('valid');
-                return true;
             }
+            return isValid;
         }
 
         function validateTelegram(nick) {
@@ -277,14 +278,14 @@
             if (validFromAddress && validToAddress && validTelegram && validPhone && fromAddressValid && toAddressValid) {
                 const orderNumber = generateOrderNumber();
                 const formattedSendDate = new Date(sendDate).toLocaleDateString('ru-RU');
-                
+
                 // Получение координат для адресов
                 const fromCoords = await getCoordinates(fromAddress);
                 const toCoords = await getCoordinates(toAddress);
-                
+
                 if (fromCoords && toCoords) {
                     const yandexMapLink = `https://yandex.ru/maps/?rtext=${toCoords.latitude},${toCoords.longitude}~${fromCoords.latitude},${fromCoords.longitude}&rtt=auto`;
-                    
+
                     const output = `
                         📝<strong>Номер заявки:</strong> ${orderNumber}<br/>
                         ✅ <strong>Наименование:</strong> ${cargo}<br/>
