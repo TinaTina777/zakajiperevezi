@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+03:05
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
