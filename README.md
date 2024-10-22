@@ -1,10 +1,11 @@
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Заявка на перевозку</title>
     <style>
+        /* Основные стили, как ранее */
         * {
             -webkit-user-select: none;
             user-select: none;
@@ -21,7 +22,6 @@
         }
         main {
             max-width: 600px;
-            width: 100%;
             padding: 20px;
             margin: 20px;
             background: white;
@@ -42,14 +42,13 @@
             font-size: 16px;
         }
         button {
-            background-color: #4caf50;
+            background-color: #4CAF50;
             color: white;
             padding: 10px 20px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
             font-size: 16px;
-            width: 100%;
         }
         button:hover {
             background-color: #45a049;
@@ -60,31 +59,6 @@
             background-color: #eaeaea;
             border-radius: 8px;
             width: 100%;
-        }
-        .valid {
-            color: green;
-            font-weight: bold;
-        }
-        .invalid {
-            color: red;
-            font-weight: bold;
-        }
-        @media (max-width: 600px) {
-            body {
-                padding: 10px;
-            }
-            main {
-                margin: 10px;
-                padding: 15px;
-            }
-            button {
-                font-size: 14px;
-            }
-        }
-        @media (min-width: 601px) {
-            main {
-                margin: 40px auto;
-            }
         }
     </style>
 </head>
@@ -99,210 +73,112 @@
 
     <label for="fromAddress">Укажите, пожалуйста, адрес отправки:</label>
     <input type="text" id="fromAddress" placeholder="Город, Улица, Дом" />
-    <div id="fromAddressValidation" class="invalid"></div>
 
     <label for="toAddress">Укажите, пожалуйста, адрес доставки:</label>
     <input type="text" id="toAddress" placeholder="Город, Улица, Дом" />
-    <div id="toAddressValidation" class="invalid"></div>
 
     <label for="sendDate">Укажите, пожалуйста, дату отправки:</label>
     <input type="date" id="sendDate" />
 
-    <label for="telegram">Укажите, пожалуйста, никнейм в Телеграм:</label>
+    <label for="telegram">Укажите, пожалуйста, никнейм в Телеграм (без "@"):</label>
     <input type="text" id="telegram" placeholder="username" />
-    <div id="telegramValidation" class="invalid"></div>
 
     <label for="phone">Укажите, пожалуйста, телефон для связи:</label>
-    <input type="tel" id="phone" placeholder="+7 999 999 9999 или 8 999 999 9999" />
-    <div id="phoneValidation" class="invalid"></div>
+    <input type="tel" id="phone" placeholder="8 999 999 9999" />
 
     <button onclick="submitForm()">Сформировать заявку</button>
 
     <div class="output" id="output"></div>
-    <button onclick="sendToTelegram()">Отправить</button>
 </main>
 
 <script>
-    const token = 'ab83f3d5c9fdc990f8b067ba9c70220d2a52d01d'; // API-ключ DaData
-    const telegramBotToken = '7440917653:AAHLtEKyOJWYHna-YJtMj9wzCeCAx8OZzgk'; // API-ключ Telegram бота
-    const telegramChatId = '@zaka_p'; // ID канала Telegram для отправки
+// Генерация уникального номера заявки
+function generateRequestNumber() {
+    return Math.floor(Math.random() * (9999 - 343 + 1)) + 343;
+}
 
-    function generateOrderNumber() {
-        return Math.floor(Math.random() * (9999 - 343 + 1)) + 343;
+// Проверка номера телефона и приведение к стандарту с 7
+function formatPhoneNumber(phone) {
+    let cleaned = phone.replace(/\D/g, '');
+    if (cleaned.startsWith('8')) {
+        cleaned = '7' + cleaned.slice(1);
+    } else if (cleaned.startsWith('7')) {
+        return '+' + cleaned;
     }
+    return '+7' + cleaned;
+}
 
-    async function validateAddress(address, validationElementId) {
-        const url = 'https://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/address';
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Token ${token}`,
-            },
-            body: JSON.stringify({
-                query: address,
-                count: 1,
-            }),
+function submitForm() {
+    const cargo = document.getElementById('cargo').value;
+    const dimensions = document.getElementById('dimensions').value;
+    const fromAddress = document.getElementById('fromAddress').value;
+    const toAddress = document.getElementById('toAddress').value;
+    const sendDate = document.getElementById('sendDate').value;
+    const telegram = document.getElementById('telegram').value;
+    const phone = formatPhoneNumber(document.getElementById('phone').value);
+
+    // Формат даты в формате DD.MM.YYYY
+    const formattedSendDate = new Date(sendDate).toLocaleDateString('ru-RU');
+
+    const requestNumber = generateRequestNumber();
+
+    const yandexMapLink = `https://yandex.ru/maps/?rtext=${encodeURIComponent(fromAddress)}~${encodeURIComponent(toAddress)}&rtt=auto`;
+
+    const output = `
+        <p><strong>📝Номер заявки:</strong> ${requestNumber}</p>
+        <p><strong>✅ Наименование:</strong> ${cargo}</p>
+        <p><strong>📦 Габариты:</strong> ${dimensions} м</p>
+        <p><strong>🏚️ Адрес отправления:</strong> ${fromAddress}</p>
+        <p><strong>🏠 Адрес доставки:</strong> ${toAddress}</p>
+        <p><strong>📅 Дата отправки:</strong> ${formattedSendDate}</p>
+        <p><strong>⛟ <a href="${yandexMapLink}" target="_blank">Маршрут в Яндекс.Картах</a></strong></p>
+        <p><strong>➤ Предложения по цене присылать:</strong> <a href="https://t.me/${telegram}" target="_blank">https://t.me/${telegram}</a></p>
+        <p><strong>📲 Телефон для связи:</strong> ${phone}</p>
+    `;
+
+    document.getElementById('output').innerHTML = output;
+
+    // Отправка заявки в канал Telegram
+    sendToTelegram(output, requestNumber, telegram, phone);
+}
+
+// Функция отправки заявки в канал Telegram
+function sendToTelegram(output, requestNumber, telegram, phone) {
+    const message = `
+📝Номер заявки: ${requestNumber}
+${output.replace(/<\/?[^>]+(>|$)/g, "")}
+
+📰 Заявка направлена в канал в телеграмм Закажи. Перевези 🚚 (https://t.me/zaka_p)
+➤ Перевозчики будут направлять свои предложения в телеграмм для t.me/${telegram}
+📲 Телефон для связи ${phone}
+    `;
+
+    const token = '7440917653:AAHLtEKyOJWYHna-YJtMj9wzCeCAx8OZzgk';
+    const chatId = '@zaka_p';
+    const url = `https://api.telegram.org/bot${token}/sendMessage`;
+
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            chat_id: chatId,
+            text: message,
+            parse_mode: 'HTML',
+        }),
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.ok) {
+                document.getElementById('output').innerHTML += `
+                    <p>📰 Заявка направлена в канал в телеграмм <a href="https://t.me/zaka_p" target="_blank">Закажи. Перевези 🚚</a></p>
+                    <button onclick="location.reload()">Создание новой заявки</button>
+                    <button onclick="window.open('https://t.me/zaka_p', '_blank')">Перейти на канал в телеграм "Закажи. Перевези 🚚"</button>
+                `;
+            }
         });
-
-        const data = await response.json();
-        const validationElement = document.getElementById(validationElementId);
-
-        if (data.suggestions.length > 0) {
-            validationElement.textContent = 'Адрес корректен';
-            validationElement.classList.remove('invalid');
-            validationElement.classList.add('valid');
-            return data.suggestions[0].value;
-        } else {
-            validationElement.textContent = 'Введите, пожалуйста, существующий адрес';
-            validationElement.classList.remove('valid');
-            validationElement.classList.add('invalid');
-            return null;
-        }
-    }
-
-    function validateTelegram(nick) {
-        const validationElement = document.getElementById('telegramValidation');
-        if (nick) {
-            validationElement.textContent = 'Никнейм корректен';
-            validationElement.classList.remove('invalid');
-            validationElement.classList.add('valid');
-            return true;
-        } else {
-            validationElement.textContent = 'Введите корректный никнейм';
-            validationElement.classList.remove('valid');
-            validationElement.classList.add('invalid');
-            return false;
-        }
-    }
-
-    function validatePhone(phone) {
-        const validationElement = document.getElementById('phoneValidation');
-        const phonePattern = /^(\+7|8)\s?\d{3}\s?\d{3}\s?\d{2}\s?\d{2}$/;
-        if (phonePattern.test(phone)) {
-            validationElement.textContent = 'Телефон корректен';
-            validationElement.classList.remove('invalid');
-            validationElement.classList.add('valid');
-            return phone.replace(/^8/, '+7').replace(/\s/g, '');
-        } else {
-            validationElement.textContent = 'Введите корректный номер телефона (+7 или 8)';
-            validationElement.classList.remove('valid');
-            validationElement.classList.add('invalid');
-            return null;
-        }
-    }
-
-    async function getCoordinates(address) {
-        const url = 'https://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/address';
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Token ${token}`,
-            },
-            body: JSON.stringify({
-                query: address,
-                count: 1,
-            }),
-        });
-
-        const data = await response.json();
-        return data.suggestions.length > 0 ? data.suggestions[0].data.geo : null;
-    }
-
-    async function submitForm() {
-        const cargo = document.getElementById('cargo').value;
-        const dimensions = document.getElementById('dimensions').value;
-        const fromAddress = document.getElementById('fromAddress').value;
-        const toAddress = document.getElementById('toAddress').value;
-        const sendDate = document.getElementById('sendDate').value;
-        const telegram = document.getElementById('telegram').value;
-        const phone = document.getElementById('phone').value;
-
-        const validFromAddress = await validateAddress(fromAddress, 'fromAddressValidation');
-        const validToAddress = await validateAddress(toAddress, 'toAddressValidation');
-        const validTelegram = validateTelegram(telegram);
-        const validPhone = validatePhone(phone);
-
-        if (validFromAddress && validToAddress && validTelegram && validPhone) {
-            const orderNumber = generateOrderNumber();
-            const formattedSendDate = new Date(sendDate).toLocaleDateString('ru-RU', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric'
-            });
-
-            // Получаем координаты (проверка не нужна, просто получаем)
-            const fromCoords = await getCoordinates(validFromAddress);
-            const toCoords = await getCoordinates(validToAddress);
-
-            // Формируем вывод информации
-            const output = `
-                <strong>Заявка на перевозку</strong><br/>
-                <strong>Номер заявки:</strong> ${orderNumber}<br/>
-                <strong>Груз:</strong> ${cargo}<br/>
-                <strong>Габариты:</strong> ${dimensions}<br/>
-                <strong>Адрес отправки:</strong> ${validFromAddress}<br/>
-                <strong>Координаты адреса отправки:</strong> ${fromCoords ? `${fromCoords.latitude}, ${fromCoords.longitude}` : 'Неизвестны'}<br/>
-                <strong>Адрес доставки:</strong> ${validToAddress}<br/>
-                <strong>Координаты адреса доставки:</strong> ${toCoords ? `${toCoords.latitude}, ${toCoords.longitude}` : 'Неизвестны'}<br/>
-                <strong>Дата отправки:</strong> ${formattedSendDate}<br/>
-                📲 <strong>Никнейм в Телеграм:</strong> <strong>${telegram}</strong><br/>
-                <a href="https://t.me/${telegram}">t.me/${telegram}</a><br/>
-                📲 <strong>Телефон для связи:</strong> <strong>${validPhone}</strong>
-            `;
-
-            document.getElementById('output').innerHTML = output;
-        } else {
-            alert('Пожалуйста, исправьте ошибки в форме');
-        }
-    }
-
-    function sendToTelegram() {
-        const message = document.getElementById('output').innerHTML;
-        const photoUrl = 'https://i.postimg.cc/ZKNjyqQ5/dkar.jpg'; // Обновленный URL картинки
-        const sendPhotoUrl = `https://api.telegram.org/bot${telegramBotToken}/sendPhoto`;
-        const sendMessageUrl = `https://api.telegram.org/bot${telegramBotToken}/sendMessage`;
-
-        fetch(sendPhotoUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                chat_id: telegramChatId,
-                photo: photoUrl,
-                caption: message,
-                parse_mode: 'HTML',
-            }),
-        })
-            .then((response) => response.json())
-            .then((data) => {
-                if (data.ok) {
-                    alert('Заявка отправлена в Telegram');
-                } else {
-                    // Если ошибка отправки с картинкой, отправляем текстовое сообщение
-                    return fetch(sendMessageUrl, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            chat_id: telegramChatId,
-                            text: message,
-                            parse_mode: 'HTML',
-                        }),
-                    });
-                }
-            })
-            .then((response) => {
-                if (response && response.ok) {
-                    alert('Заявка отправлена в Telegram без картинки');
-                } else {
-                    alert('Ошибка отправки заявки');
-                }
-            });
-    }
+}
 </script>
 </body>
 </html>
