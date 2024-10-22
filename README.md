@@ -217,15 +217,7 @@
         const validTelegram = validateTelegram(telegram);
         const validPhone = validatePhone(phone);
 
-        function formatPhoneNumber(phone) {
-    let cleaned = phone.replace(/\D/g, '');
-    if (cleaned.startsWith('8')) {
-        cleaned = '7' + cleaned.slice(1);
-    } else if (cleaned.startsWith('7')) {
-        return '+' + cleaned;
-    }
-    return '+7' + cleaned;
-}
+       
 
         if (validFromAddress && validToAddress && validTelegram && validPhone) {
           const orderNumber = generateOrderNumber();
@@ -240,7 +232,7 @@
             📅 <strong>Дата отправки:</strong> ${sendDate}<br/>
             ⛟ <strong><a href="${yandexMapLink}" target="_blank">Маршрут в Яндекс.Картах</a></strong><br/>
             ➤ <strong>Предложения по цене присылать:</strong> <a href="https://t.me/${telegram}">t.me/${telegram}</a><br/>
-            📲 <strong>Телефон для связи:</strong> ${validPhone}
+            📲 <strong>Телефон для связи:</strong> +${validPhone}
           `;
 
           document.getElementById('output').innerHTML = output;
