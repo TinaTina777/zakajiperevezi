@@ -200,34 +200,6 @@
             }
         }
 
-        function validateAddressFields(address, validationElementId) {
-            const validationElement = document.getElementById(validationElementId);
-            const parts = address.split(',');
-            let isValid = true;
-            let errorMessage = '';
-
-            if (parts.length < 3) {
-                errorMessage = 'Введите полный адрес: город, улица и дом.';
-                isValid = false;
-            } else {
-                const streetAndHouse = parts[1].trim().split(' ');
-                if (streetAndHouse.length < 2) {
-                    errorMessage = 'Введите улицу и номер дома.';
-                    isValid = false;
-                }
-            }
-
-            if (!isValid) {
-                validationElement.textContent = errorMessage;
-                validationElement.classList.remove('valid');
-                validationElement.classList.add('invalid');
-            } else {
-                validationElement.classList.remove('invalid');
-                validationElement.classList.add('valid');
-            }
-            return isValid;
-        }
-
         function validateTelegram(nick) {
             const validationElement = document.getElementById('telegramValidation');
             if (nick) {
@@ -270,12 +242,10 @@
 
             const validFromAddress = await validateAddress(fromAddress, 'fromAddressValidation');
             const validToAddress = await validateAddress(toAddress, 'toAddressValidation');
-            const fromAddressValid = validateAddressFields(fromAddress, 'fromAddressValidation');
-            const toAddressValid = validateAddressFields(toAddress, 'toAddressValidation');
             const validTelegram = validateTelegram(telegram);
             const validPhone = validatePhone(phone);
 
-            if (validFromAddress && validToAddress && validTelegram && validPhone && fromAddressValid && toAddressValid) {
+            if (validFromAddress && validToAddress && validTelegram && validPhone) {
                 const orderNumber = generateOrderNumber();
                 const formattedSendDate = new Date(sendDate).toLocaleDateString('ru-RU');
 
