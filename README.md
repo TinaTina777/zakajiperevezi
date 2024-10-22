@@ -229,7 +229,6 @@
 
           const yandexMapLink = `https://yandex.ru/maps/?rtext=${encodeURIComponent(fromAddress)}~${encodeURIComponent(toAddress)}&rtt=auto`;
           const output = `
-            <img src="https://telesearching.com/wp-content/uploads/2024/02/2024-02-06_18-00-18.png" alt="Картинка заявки" style="max-width: 100%; height: auto;" /><br />
             📝<strong>Номер заявки:</strong> ${orderNumber}<br/>
             ✅ <strong>Наименование:</strong> <strong>${cargo}</strong><br/>
             📦 <strong>Габариты:</strong> <strong>${dimensions}</strong><br/>
@@ -248,18 +247,20 @@
       }
 
       function sendToTelegram() {
-        // Добавляем изображение в сообщение, а текст преобразуем в HTML
         const message = document.getElementById('output').innerHTML;
-        const url = `https://api.telegram.org/bot${telegramBotToken}/sendMessage`;
+        const photoUrl = 'https://telesearching.com/wp-content/uploads/2024/02/2024-02-06_18-00-18.png';
+        const sendPhotoUrl = `https://api.telegram.org/bot${telegramBotToken}/sendPhoto`;
 
-        fetch(url, {
+        // Сначала отправляем изображение
+        fetch(sendPhotoUrl, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
             chat_id: telegramChatId,
-            text: message,
+            photo: photoUrl,
+            caption: message,
             parse_mode: 'HTML',
           }),
         })
