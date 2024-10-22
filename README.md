@@ -244,6 +244,7 @@
               year: 'numeric'
             });
 
+            // Создаем ссылку на маршрут с использованием координат
             const yandexMapLink = `https://yandex.ru/maps/?raddr=${fromCoords.latitude},${fromCoords.longitude}~${toCoords.latitude},${toCoords.longitude}`;
 
             const output = `
@@ -267,53 +268,31 @@
         }
       }
 
-      async function sendToTelegram() {
+      function sendToTelegram() {
         const message = document.getElementById('output').innerHTML;
-        const photoUrl = 'https://telesearching.com/wp-content/uploads/2024/02/2024-02-06_18-00-18.png';
+        const photoUrl = 'https://telesearching.com/wp-content/uploads/2024/02/2024-02-06_18-00-18.png](https://i.postimg.cc/ZKNjyqQ5/dkar.jpg';
         const sendPhotoUrl = `https://api.telegram.org/bot${telegramBotToken}/sendPhoto`;
-        const sendMessageUrl = `https://api.telegram.org/bot${telegramBotToken}/sendMessage`;
 
-        try {
-          const response = await fetch(sendPhotoUrl, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              chat_id: telegramChatId,
-              photo: photoUrl,
-              caption: message,
-              parse_mode: 'HTML',
-            }),
-          });
-
-          const data = await response.json();
-          if (data.ok) {
-            alert('Заявка отправлена в Telegram с изображением');
-          } else {
-            // Если не удалось отправить изображение, отправляем текстовое сообщение
-            const textResponse = await fetch(sendMessageUrl, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                chat_id: telegramChatId,
-                text: message,
-                parse_mode: 'HTML',
-              }),
-            });
-            const textData = await textResponse.json();
-            if (textData.ok) {
-              alert('Заявка отправлена в Telegram как текстовое сообщение');
+        fetch(sendPhotoUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            chat_id: telegramChatId,
+            photo: photoUrl,
+            caption: message,
+            parse_mode: 'HTML',
+          }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.ok) {
+              alert('Заявка отправлена в Telegram');
             } else {
-              alert('Ошибка отправки заявки в Telegram');
+              alert('Ошибка отправки заявки');
             }
-          }
-        } catch (error) {
-          alert('Произошла ошибка при отправке заявки в Telegram');
-          console.error(error);
-        }
+          });
       }
     </script>
   </body>
