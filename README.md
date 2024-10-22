@@ -65,19 +65,14 @@
         border-radius: 8px;
         width: 100%;
       }
-
-      /* Стиль для проверки валидности */
       .valid {
         color: green;
         font-weight: bold;
       }
-
       .invalid {
         color: red;
         font-weight: bold;
       }
-
-      /* Адаптивность */
       @media (max-width: 600px) {
         body {
           padding: 10px;
@@ -90,7 +85,6 @@
           font-size: 14px;
         }
       }
-
       @media (min-width: 601px) {
         main {
           margin: 40px auto;
@@ -137,7 +131,6 @@
       const telegramBotToken = '7440917653:AAHLtEKyOJWYHna-YJtMj9wzCeCAx8OZzgk'; // API-ключ Telegram бота
       const telegramChatId = '@zaka_p'; // ID канала Telegram для отправки
 
-      // Генерация уникального номера заявки
       function generateOrderNumber() {
         return Math.floor(Math.random() * (9999 - 343 + 1)) + 343;
       }
@@ -172,6 +165,28 @@
         }
       }
 
+      async function getCoordinates(address) {
+        const url = 'https://suggestions.dadata.ru/suggestions/api/4_1/rs/geolocate';
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Token ${token}`,
+          },
+          body: JSON.stringify({
+            address: address,
+          }),
+        });
+
+        const data = await response.json();
+        if (data.geo_lat && data.geo_lon) {
+          return { latitude: data.geo_lat, longitude: data.geo_lon };
+        } else {
+          console.error('Не удалось получить координаты:', data);
+          return null;
+        }
+      }
+
       function validateTelegram(nick) {
         const validationElement = document.getElementById('telegramValidation');
         if (nick) {
@@ -194,7 +209,6 @@
           validationElement.textContent = 'Телефон корректен';
           validationElement.classList.remove('invalid');
           validationElement.classList.add('valid');
-          // Заменяем 8 на +7 и удаляем пробелы
           return phone.replace(/^8/, '+7').replace(/\s/g, '');
         } else {
           validationElement.textContent = 'Введите корректный номер телефона (+7 или 8)';
@@ -219,28 +233,36 @@
         const validPhone = validatePhone(phone);
 
         if (validFromAddress && validToAddress && validTelegram && validPhone) {
-          const orderNumber = generateOrderNumber();
-          // Форматируем дату в формате DD.MM.YYYY
-          const formattedSendDate = new Date(sendDate).toLocaleDateString('ru-RU', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric'
-          });
+          const fromCoords = await getCoordinates(validFromAddress);
+          const toCoords = await getCoordinates(validToAddress);
 
-          const yandexMapLink = `https://yandex.ru/maps/?rtext=${encodeURIComponent(fromAddress)}~${encodeURIComponent(toAddress)}&rtt=auto`;
-          const output = `
-            📝<strong>Номер заявки:</strong> ${orderNumber}<br/>
-            ✅ <strong>Наименование:</strong> <strong>${cargo}</strong><br/>
-            📦 <strong>Габариты:</strong> <strong>${dimensions}</strong><br/>
-            🏚️ <strong>Адрес отправления:</strong> <strong>${validFromAddress}</strong><br/>
-            🏠 <strong>Адрес доставки:</strong> <strong>${validToAddress}</strong><br/>
-            📅 <strong>Дата отправки:</strong> <strong>${formattedSendDate}</strong><br/>
-            ⛟ <strong><a href="${yandexMapLink}" target="_blank">Маршрут в Яндекс.Картах</a></strong><br/>
-            ➤ <strong>Предложения по цене присылать:</strong> <a href="https://t.me/${telegram}">t.me/${telegram}</a><br/>
-            📲 <strong>Телефон для связи:</strong> <strong>${validPhone}</strong>
-          `;
+          if (fromCoords && toCoords) {
+            const orderNumber = generateOrderNumber();
+            const formattedSendDate = new Date(sendDate).toLocaleDateString('ru-RU', {
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric'
+            });
 
-          document.getElementById('output').innerHTML = output;
+            // Создаем ссылку на маршрут с использованием координат
+            const yandexMapLink = `https://yandex.ru/maps/?raddr=${fromCoords.latitude},${fromCoords.longitude}~${toCoords.latitude},${toCoords.longitude}`;
+
+            const output = `
+              📝<strong>Номер заявки:</strong> ${orderNumber}<br/>
+              ✅ <strong>Наименование:</strong> <strong>${cargo}</strong><br/>
+              📦 <strong>Габариты:</strong> <strong>${dimensions}</strong><br/>
+              🏚️ <strong>Адрес отправления:</strong> <strong>${validFromAddress}</strong><br/>
+              🏠 <strong>Адрес доставки:</strong> <strong>${validToAddress}</strong><br/>
+              📅 <strong>Дата отправки:</strong> <strong>${formattedSendDate}</strong><br/>
+              ⛟ <strong><a href="${yandexMapLink}" target="_blank">Маршрут в Яндекс.Картах</a></strong><br/>
+              ➤ <strong>Предложения по цене присылать:</strong> <a href="https://t.me/${telegram}">t.me/${telegram}</a><br/>
+              📲 <strong>Телефон для связи:</strong> <strong>${validPhone}</strong>
+            `;
+
+            document.getElementById('output').innerHTML = output;
+          } else {
+            alert('Не удалось получить координаты для одного из адресов');
+          }
         } else {
           alert('Пожалуйста, исправьте ошибки в форме');
         }
@@ -251,7 +273,6 @@
         const photoUrl = 'https://telesearching.com/wp-content/uploads/2024/02/2024-02-06_18-00-18.png';
         const sendPhotoUrl = `https://api.telegram.org/bot${telegramBotToken}/sendPhoto`;
 
-        // Сначала отправляем изображение
         fetch(sendPhotoUrl, {
           method: 'POST',
           headers: {
