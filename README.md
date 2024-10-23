@@ -203,6 +203,11 @@
           return null;
         }
       }
+      document.getElementById('fromAddress').addEventListener('input', () => validateAddress(document.getElementById('fromAddress').value, 'fromAddressValidation'));
+document.getElementById('toAddress').addEventListener('input', () => validateAddress(document.getElementById('toAddress').value, 'toAddressValidation'));
+document.getElementById('telegram').addEventListener('input', () => validateTelegram(document.getElementById('telegram').value));
+document.getElementById('phone').addEventListener('input', () => validatePhone(document.getElementById('phone').value));
+
 
       async function submitForm() {
         const cargo = document.getElementById('cargo').value;
