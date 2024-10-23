@@ -1,4 +1,4 @@
-23:18
+23:22
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
@@ -249,6 +249,20 @@ function sendToTelegram() {
     const message = document.getElementById('output').innerText;
     const url = `https://api.telegram.org/bot${telegramBotToken}/sendMessage`;
 
+    // Экранирование специальных символов для MarkdownV2
+    const safeMessage = message
+      .replace(/\./g, '\\.')
+      .replace(/-/g, '\\-')
+      .replace(/\(/g, '\\(')
+      .replace(/\)/g, '\\)')
+      .replace(/!/g, '\\!')
+      .replace(/\_/g, '\\_')
+      .replace(/\*/g, '\\*')
+      .replace(/\[/g, '\\[')
+      .replace(/\]/g, '\\]')
+      .replace(/\~/g, '\\~')
+      .replace(/\`/g, '\\`');
+
     fetch(url, {
       method: 'POST',
       headers: {
@@ -256,7 +270,7 @@ function sendToTelegram() {
       },
       body: JSON.stringify({
         chat_id: telegramChatId,
-        text: message,
+        text: safeMessage,  // Передаем безопасное сообщение
         parse_mode: 'MarkdownV2',
       }),
     })
@@ -269,6 +283,7 @@ function sendToTelegram() {
       }
     });
 }
+
      </script>
   </body>
 </html>
