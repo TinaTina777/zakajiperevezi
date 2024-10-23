@@ -244,7 +244,6 @@ document.getElementById('phone').addEventListener('input', () => validatePhone(d
     }
 }
 
-
 function sendToTelegram() {
         const message = document.getElementById('output').innerText;
         const url = https://api.telegram.org/bot${telegramBotToken}/sendMessage;
@@ -269,7 +268,6 @@ function sendToTelegram() {
             }
           });
       }
-
      </script>
   </body>
 </html>
