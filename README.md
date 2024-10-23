@@ -1,4 +1,4 @@
-22:45
+22:47
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
@@ -292,30 +292,4 @@ function sendToTelegram() {
   </body>
 </html>
 
-      //function sendToTelegram() {
-        const message = document.getElementById('output').innerText;
-        const url = `https://api.telegram.org/bot${telegramBotToken}/sendMessage`;
-
-        fetch(url, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            chat_id: telegramChatId,
-            text: message,
-            parse_mode: 'HTML',
-          }),
-        })
-          .then((response) => response.json())
-          .then((data) => {
-            if (data.ok) {
-              alert('Заявка отправлена в Telegram');
-            } else {
-              alert('Ошибка отправки заявки');
-            }
-          });
-      }
-    </script>
-  </body>
-</html>
+     
