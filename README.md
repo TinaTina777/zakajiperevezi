@@ -1,4 +1,4 @@
-23:14
+23:18
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
@@ -245,32 +245,31 @@ document.getElementById('phone').addEventListener('input', () => validatePhone(d
 }
 
 
+function sendToTelegram() {
+    const message = document.getElementById('output').innerText;
+    const url = `https://api.telegram.org/bot${telegramBotToken}/sendMessage`;
 
- function sendToTelegram() {
-        const message = document.getElementById('output').innerText;
-        const url = `https://api.telegram.org/bot${telegramBotToken}/sendMessage`;
-
-        fetch(url, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            chat_id: telegramChatId,
-            text: message,
-            parse_mode: 'MarkdownV2',
-          }),
-        })
-          .then((response) => response.json())
-          .then((data) => {
-            if (data.ok) {
-              alert('Заявка отправлена в Telegram');
-            } else {
-              alert('Ошибка отправки заявки');
-            }
-          });
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        chat_id: telegramChatId,
+        text: message,
+        parse_mode: 'MarkdownV2',
+      }),
+    })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.ok) {
+        alert('Заявка отправлена в Telegram');
+      } else {
+        alert('Ошибка отправки заявки');
       }
-    </script>
+    });
+}
+     </script>
   </body>
 </html>
 
