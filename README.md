@@ -287,7 +287,10 @@ function sendToTelegram() {
         }
     });
 }
-
+ }
+    </script>
+  </body>
+</html>
 
       //function sendToTelegram() {
         const message = document.getElementById('output').innerText;
