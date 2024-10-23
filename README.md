@@ -1,4 +1,4 @@
-23:05
+23:12
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
@@ -225,6 +225,7 @@ document.getElementById('phone').addEventListener('input', () => validatePhone(d
 
     if (validFromAddress && validToAddress && validTelegram && validPhone) {
         const orderNumber = generateOrderNumber();
+        const url = `https://yandex.ru/maps/?rtext=${encodeURIComponent(fromAddress)}~${encodeURIComponent(toAddress)}&rtt=auto`;
         const output = `
             📝 <strong>Номер заявки:</strong> ${orderNumber}<br/>
             ✅ <strong>Наименование:</strong> ${cargo}<br/>
@@ -232,7 +233,7 @@ document.getElementById('phone').addEventListener('input', () => validatePhone(d
             🏚️ <strong>Адрес отправления:</strong> ${validFromAddress}<br/>
             🏠 <strong>Адрес доставки:</strong> ${validToAddress}<br/>
             📅 <strong>Дата отправки:</strong> ${new Date(sendDate).toLocaleDateString('ru-RU')}<br/>
-            ⛟ <strong>Маршрут в Яндекс.Картах:</strong> <a href="https://yandex.ru/maps/?rtext=${encodeURIComponent(validFromAddress)}~${encodeURIComponent(validToAddress)}&rtt=auto">Посмотреть маршрут</a><br/>
+            ⛟ [Маршрут в Яндекс.Картах](${url})<br/>
             ➤ <strong>Предложения по цене присылать:</strong> <a href="https://t.me/${telegram}">t.me/${telegram}</a><br/>
             📲 <strong>Телефон для связи:</strong> +7${validPhone.slice(1)}
         `;
