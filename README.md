@@ -1,4 +1,4 @@
-00:12
+00:22
 <html lang="ru">
 <head>
     <meta charset="UTF-8" />
@@ -220,8 +220,8 @@
                 🏚️ <strong>Адрес отправления:</strong> ${validFromAddress}<br/>
                 🏠 <strong>Адрес доставки:</strong> ${validToAddress}<br/>
                 📅 <strong>Дата отправки:</strong> ${new Date(sendDate).toLocaleDateString('ru-RU')}<br/>
-                ⛟ <strong>Маршрут в Яндекс.Картах:</strong> <a href="https://yandex.ru/maps/?rtext=${encodeURIComponent(validFromAddress)}~${encodeURIComponent(validToAddress)}&rtt=auto">Посмотреть маршрут</a><br/>
-                ➤ <strong>Предложения по цене присылать:</strong> <a href="https://t.me/${telegram}">t.me/${telegram}</a><br/>
+                ⛟ <strong>Маршрут в Яндекс.Картах:</strong> [Посмотреть маршрут](https://yandex.ru/maps/?rtext=${encodeURIComponent(validFromAddress)}~${encodeURIComponent(validToAddress)}&rtt=auto)<br/>
+                ➤ <strong>Предложения по цене присылать:</strong> [t.me/${telegram}](https://t.me/${telegram})<br/>
                 📲 <strong>Телефон для связи:</strong> +7${phone.slice(1)}
             `;
             document.getElementById('output').innerHTML = output;
@@ -239,8 +239,8 @@
             🏚️ *Адрес отправления:* ${escapeMarkdown(document.getElementById('fromAddress').value)}
             🏠 *Адрес доставки:* ${escapeMarkdown(document.getElementById('toAddress').value)}
             📅 *Дата отправки:* ${new Date(document.getElementById('sendDate').value).toLocaleDateString('ru-RU')}
-            ⛟ *Маршрут в Яндекс.Картах:* https://yandex.ru/maps/?rtext=${encodeURIComponent(document.getElementById('fromAddress').value)}~${encodeURIComponent(document.getElementById('toAddress').value)}&rtt=auto
-            ➤ *Предложения по цене присылать:* https://t.me/${escapeMarkdown(document.getElementById('telegram').value)}
+            ⛟ *Маршрут в Яндекс.Картах:* [Посмотреть маршрут](https://yandex.ru/maps/?rtext=${encodeURIComponent(document.getElementById('fromAddress').value)}~${encodeURIComponent(document.getElementById('toAddress').value)}&rtt=auto)
+            ➤ *Предложения по цене присылать:* [t.me/${escapeMarkdown(document.getElementById('telegram').value)}](https://t.me/${escapeMarkdown(document.getElementById('telegram').value)})
             📲 *Телефон для связи:* +7${escapeMarkdown(validatePhone(document.getElementById('phone').value)).slice(1)}
         `;
 
