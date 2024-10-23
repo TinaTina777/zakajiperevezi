@@ -257,7 +257,7 @@ document.getElementById('phone').addEventListener('input', () => validatePhone(d
           body: JSON.stringify({
             chat_id: telegramChatId,
             text: message,
-            parse_mode: 'Markdown',
+            parse_mode: 'MarkdownV2',
           }),
         })
           .then((response) => response.json())
