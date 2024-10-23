@@ -1,4 +1,3 @@
-00:22
 <html lang="ru">
 <head>
     <meta charset="UTF-8" />
@@ -194,35 +193,32 @@
     document.getElementById('telegram').addEventListener('input', () => validateTelegram(document.getElementById('telegram').value));
     document.getElementById('phone').addEventListener('input', () => validatePhone(document.getElementById('phone').value));
 
-    const escapeMarkdown = (text) => {
-        const markdownChars = /([_*\[\]()~`>#+\-=|{}.!])/g;
-        return text.replace(markdownChars, '\\$1'); // Экранирование символов Markdown
-    };
-
     const submitForm = async () => {
-        const cargo = escapeMarkdown(document.getElementById('cargo').value);
-        const dimensions = escapeMarkdown(document.getElementById('dimensions').value);
-        const fromAddress = escapeMarkdown(await validateAddress(document.getElementById('fromAddress').value, 'fromAddressValidation'));
-        const toAddress = escapeMarkdown(await validateAddress(document.getElementById('toAddress').value, 'toAddressValidation'));
+        const cargo = document.getElementById('cargo').value;
+        const dimensions = document.getElementById('dimensions').value;
+        const fromAddress = document.getElementById('fromAddress').value;
+        const toAddress = document.getElementById('toAddress').value;
         const sendDate = document.getElementById('sendDate').value;
-        const telegram = escapeMarkdown(document.getElementById('telegram').value);
-        const phone = escapeMarkdown(validatePhone(document.getElementById('phone').value));
+        const telegram = document.getElementById('telegram').value;
+        const phone = document.getElementById('phone').value;
 
         const validFromAddress = await validateAddress(fromAddress, 'fromAddressValidation');
         const validToAddress = await validateAddress(toAddress, 'toAddressValidation');
+        const validTelegram = validateTelegram(telegram);
+        const validPhone = validatePhone(phone);
 
-        if (validFromAddress && validToAddress && phone) {
+        if (validFromAddress && validToAddress && validTelegram && validPhone) {
             const orderNumber = generateOrderNumber();
             const output = `
-                📋 <strong>Заявка №${orderNumber}</strong><br/>
-                📦 <strong>Наименование:</strong> ${cargo}<br/>
-                📏 <strong>Габариты:</strong> ${dimensions}<br/>
+                📝 <strong>Номер заявки:</strong> ${orderNumber}<br/>
+                ✅ <strong>Наименование:</strong> ${cargo}<br/>
+                📦 <strong>Габариты:</strong> ${dimensions}<br/>
                 🏚️ <strong>Адрес отправления:</strong> ${validFromAddress}<br/>
                 🏠 <strong>Адрес доставки:</strong> ${validToAddress}<br/>
                 📅 <strong>Дата отправки:</strong> ${new Date(sendDate).toLocaleDateString('ru-RU')}<br/>
-                ⛟ <strong>Маршрут в Яндекс.Картах:</strong> [Посмотреть маршрут](https://yandex.ru/maps/?rtext=${encodeURIComponent(validFromAddress)}~${encodeURIComponent(validToAddress)}&rtt=auto)<br/>
-                ➤ <strong>Предложения по цене присылать:</strong> [t.me/${telegram}](https://t.me/${telegram})<br/>
-                📲 <strong>Телефон для связи:</strong> +7${phone.slice(1)}
+                ⛟ <strong>Маршрут в Яндекс.Картах:</strong> <a href="https://yandex.ru/maps/?rtext=${encodeURIComponent(validFromAddress)}~${encodeURIComponent(validToAddress)}&rtt=auto">Посмотреть маршрут</a><br/>
+                ➤ <strong>Предложения по цене присылать:</strong> <a href="https://t.me/${telegram}">t.me/${telegram}</a><br/>
+                📲 <strong>Телефон для связи:</strong> +7${validPhone.slice(1)}
             `;
             document.getElementById('output').innerHTML = output;
         } else {
@@ -231,20 +227,9 @@
     };
 
     const sendToTelegram = () => {
-        const message = `
-            Заявка на перевозку:
-            📋 *Заявка №${generateOrderNumber()}*
-            📦 *Наименование:* ${escapeMarkdown(document.getElementById('cargo').value)}
-            📏 *Габариты:* ${escapeMarkdown(document.getElementById('dimensions').value)}
-            🏚️ *Адрес отправления:* ${escapeMarkdown(document.getElementById('fromAddress').value)}
-            🏠 *Адрес доставки:* ${escapeMarkdown(document.getElementById('toAddress').value)}
-            📅 *Дата отправки:* ${new Date(document.getElementById('sendDate').value).toLocaleDateString('ru-RU')}
-            ⛟ *Маршрут в Яндекс.Картах:* [Посмотреть маршрут](https://yandex.ru/maps/?rtext=${encodeURIComponent(document.getElementById('fromAddress').value)}~${encodeURIComponent(document.getElementById('toAddress').value)}&rtt=auto)
-            ➤ *Предложения по цене присылать:* [t.me/${escapeMarkdown(document.getElementById('telegram').value)}](https://t.me/${escapeMarkdown(document.getElementById('telegram').value)})
-            📲 *Телефон для связи:* +7${escapeMarkdown(validatePhone(document.getElementById('phone').value)).slice(1)}
-        `;
-
+        const message = document.getElementById('output').innerText;
         const url = `https://api.telegram.org/bot${telegramBotToken}/sendMessage`;
+
         fetch(url, {
             method: 'POST',
             headers: {
@@ -253,7 +238,7 @@
             body: JSON.stringify({
                 chat_id: telegramChatId,
                 text: message,
-                parse_mode: 'MarkdownV2',
+                parse_mode: 'HTML',
             }),
         })
         .then((response) => response.json())
