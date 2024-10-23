@@ -244,7 +244,52 @@ document.getElementById('phone').addEventListener('input', () => validatePhone(d
 }
 
 
-      function sendToTelegram() {
+
+function sendToTelegram() {
+    const output = document.getElementById('output').innerHTML;
+
+    const message = `
+        📝 <strong>Номер заявки:</strong> ${orderNumber}<br/>
+        ✅ <strong>Наименование:</strong> ${cargo}<br/>
+        📦 <strong>Габариты:</strong> ${dimensions}<br/>
+        🏚️ <strong>Адрес отправления:</strong> ${validFromAddress}<br/>
+        🏠 <strong>Адрес доставки:</strong> ${validToAddress}<br/>
+        📅 <strong>Дата отправки:</strong> ${new Date(sendDate).toLocaleDateString('ru-RU')}<br/>
+        ⛟ <strong>Маршрут в Яндекс.Картах:</strong> <a href="https://yandex.ru/maps/?rtext=${encodeURIComponent(fromAddress)}~${encodeURIComponent(toAddress)}&rtt=auto">Посмотреть маршрут</a><br/>
+        ➤ <strong>Предложения по цене присылать:</strong> <a href="https://t.me/${telegram}">t.me/${telegram}</a><br/>
+        📲 <strong>Телефон для связи:</strong> +7${validPhone.slice(1)}
+    `;
+
+    const url = `https://api.telegram.org/bot${telegramBotToken}/sendMessage`;
+
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            chat_id: telegramChatId,
+            text: message,
+            parse_mode: 'HTML', // Используем HTML для форматирования
+        }),
+    })
+    .then((response) => response.json())
+    .then((data) => {
+        if (data.ok) {
+            alert('📰 Заявка направлена в канал в телеграмм Закажи. Перевези 🚚');
+            document.getElementById('output').innerHTML = `
+                📰 Заявка направлена в канал в телеграмм <a href="https://t.me/zaka_p">Закажи. Перевези 🚚</a><br/>
+                ➤ Перевозчики будут направлять свои предложения в телеграмм для <a href="https://t.me/${telegram}">t.me/${telegram}</a><br/>
+                📲 Телефон для связи: +7${validPhone.slice(1)}
+            `;
+        } else {
+            alert('Ошибка отправки заявки');
+        }
+    });
+}
+
+
+      //function sendToTelegram() {
         const message = document.getElementById('output').innerText;
         const url = `https://api.telegram.org/bot${telegramBotToken}/sendMessage`;
 
