@@ -239,7 +239,7 @@
             body: JSON.stringify({
                 chat_id: telegramChatId,
                 text: message,
-                parse_mode: 'MarkdownV2',
+                parse_mode: 'HTML',
             }),
         })
         .then((response) => response.json())
