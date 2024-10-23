@@ -232,7 +232,7 @@ document.getElementById('phone').addEventListener('input', () => validatePhone(d
             🏚️ <strong>Адрес отправления:</strong> ${validFromAddress}<br/>
             🏠 <strong>Адрес доставки:</strong> ${validToAddress}<br/>
             📅 <strong>Дата отправки:</strong> ${new Date(sendDate).toLocaleDateString('ru-RU')}<br/>
-            ⛟ <strong>Маршрут в Яндекс.Картах:</strong> <a href="https://yandex.ru/maps/?rtext=${encodeURIComponent(fromAddress)}~${encodeURIComponent(toAddress)}&rtt=auto">Посмотреть маршрут</a><br/>
+            ⛟ <strong>Маршрут в Яндекс.Картах:</strong> <a href="https://yandex.ru/maps/?rtext=${encodeURIComponent(fromAddress)}~${encodeURIComponent(toAddress)}&rtt=auto">Посмотреть маршрут</a>
             ➤ <strong>Предложения по цене присылать:</strong> <a href="https://t.me/${telegram}">t.me/${telegram}</a><br/>
             📲 <strong>Телефон для связи:</strong> +7${validPhone.slice(1)}
         `;
