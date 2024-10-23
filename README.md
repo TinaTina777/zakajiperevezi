@@ -1,4 +1,4 @@
-3:09
+22:31
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
@@ -209,38 +209,40 @@ document.getElementById('telegram').addEventListener('input', () => validateTele
 document.getElementById('phone').addEventListener('input', () => validatePhone(document.getElementById('phone').value));
 
 
-      async function submitForm() {
-        const cargo = document.getElementById('cargo').value;
-        const dimensions = document.getElementById('dimensions').value;
-        const fromAddress = document.getElementById('fromAddress').value;
-        const toAddress = document.getElementById('toAddress').value;
-        const sendDate = document.getElementById('sendDate').value;
-        const telegram = document.getElementById('telegram').value;
-        const phone = document.getElementById('phone').value;
+     async function submitForm() {
+    const cargo = document.getElementById('cargo').value;
+    const dimensions = document.getElementById('dimensions').value;
+    const fromAddress = document.getElementById('fromAddress').value;
+    const toAddress = document.getElementById('toAddress').value;
+    const sendDate = document.getElementById('sendDate').value;
+    const telegram = document.getElementById('telegram').value;
+    const phone = document.getElementById('phone').value;
 
-        const validFromAddress = await validateAddress(fromAddress, 'fromAddressValidation');
-        const validToAddress = await validateAddress(toAddress, 'toAddressValidation');
-        const validTelegram = validateTelegram(telegram);
-        const validPhone = validatePhone(phone);
+    const validFromAddress = await validateAddress(fromAddress, 'fromAddressValidation');
+    const validToAddress = await validateAddress(toAddress, 'toAddressValidation');
+    const validTelegram = validateTelegram(telegram);
+    const validPhone = validatePhone(phone);
 
-        if (validFromAddress && validToAddress && validTelegram && validPhone) {
-          const orderNumber = generateOrderNumber();
-          const output = `
-            <p><strong>Номер заявки:</strong> ${orderNumber}</p>
+    if (validFromAddress && validToAddress && validTelegram && validPhone) {
+        const orderNumber = generateOrderNumber();
+        const output = `
+            📝 <strong>Номер заявки:</strong> ${orderNumber}<br/>
             ✅ <strong>Наименование:</strong> ${cargo}<br/>
             📦 <strong>Габариты:</strong> ${dimensions}<br/>
             🏚️ <strong>Адрес отправления:</strong> ${validFromAddress}<br/>
             🏠 <strong>Адрес доставки:</strong> ${validToAddress}<br/>
-            📅 <strong>Дата отправки:</strong> ${sendDate}<br/>
+            📅 <strong>Дата отправки:</strong> ${new Date(sendDate).toLocaleDateString('ru-RU')}<br/>
+            ⛟ <strong>Маршрут в Яндекс.Картах:</strong> <a href="https://yandex.ru/maps/?rtext=${encodeURIComponent(fromAddress)}~${encodeURIComponent(toAddress)}&rtt=auto">Посмотреть маршрут</a><br/>
             ➤ <strong>Предложения по цене присылать:</strong> <a href="https://t.me/${telegram}">t.me/${telegram}</a><br/>
-            📲 <strong>Телефон для связи:</strong> ${validPhone}
-          `;
+            📲 <strong>Телефон для связи:</strong> +7${validPhone.slice(1)}
+        `;
 
-          document.getElementById('output').innerHTML = output;
-        } else {
-          alert('Пожалуйста, исправьте ошибки в форме');
-        }
-      }
+        document.getElementById('output').innerHTML = output;
+    } else {
+        alert('Пожалуйста, исправьте ошибки в форме');
+    }
+}
+
 
       function sendToTelegram() {
         const message = document.getElementById('output').innerText;
