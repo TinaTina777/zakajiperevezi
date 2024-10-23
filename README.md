@@ -1,4 +1,4 @@
-23:29
+23:31
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
@@ -246,44 +246,29 @@ document.getElementById('phone').addEventListener('input', () => validatePhone(d
 
 
 function sendToTelegram() {
-    const message = document.getElementById('output').innerText;
-    const url = `https://api.telegram.org/bot${telegramBotToken}/sendMessage`;
+        const message = document.getElementById('output').innerText;
+        const url = https://api.telegram.org/bot${telegramBotToken}/sendMessage;
 
-    // Экранирование специальных символов для MarkdownV2
-    const safeMessage = message
-      .replace(/\./g, '\\.')   // Экранирование точки
-      .replace(/-/g, '\\-')    // Экранирование дефиса
-      .replace(/\(/g, '\\(')   // Экранирование открывающей скобки
-      .replace(/\)/g, '\\)')   // Экранирование закрывающей скобки
-      .replace(/!/g, '\\!')    // Экранирование восклицательного знака
-      .replace(/\_/g, '\\_')   // Экранирование подчеркивания
-      .replace(/\*/g, '\\*')   // Экранирование звездочки
-      .replace(/\[/g, '\\[')   // Экранирование открывающей квадратной скобки
-      .replace(/\]/g, '\\]')   // Экранирование закрывающей квадратной скобки
-      .replace(/\~/g, '\\~')   // Экранирование тильды
-      .replace(/\`/g, '\\`')   // Экранирование апострофа
-      .replace(/\n/g, '\\n');  // Экранирование перевода строки
-
-    fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        chat_id: telegramChatId,
-        text: safeMessage,  // Передаем безопасное сообщение
-        parse_mode: 'MarkdownV2',
-      }),
-    })
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.ok) {
-        alert('Заявка отправлена в Telegram');
-      } else {
-        alert('Ошибка отправки заявки');
+        fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            chat_id: telegramChatId,
+            text: message,
+            parse_mode: 'MarkdownV2',
+          }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.ok) {
+              alert('Заявка отправлена в Telegram');
+            } else {
+              alert('Ошибка отправки заявки');
+            }
+          });
       }
-    });
-}
 
      </script>
   </body>
