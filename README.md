@@ -124,8 +124,9 @@
 </main>
 
 <script>
-    const token = 'ab83f3d5c9fdc990f8b067ba9c70220d2a52d01d'; // API-ключ DaData
-    const telegramBotToken = '7440917653:AAHLtEKyOJWYHna-YJtMj9wzCeCAx8OZzgk'; // API-ключ Telegram бота
+    // Загружаем токены из переменных окружения
+const token = process.env.TOKENDADATA; // API-ключ DaData из секретов
+const telegramBotToken = process.env.TELEGRAM_BOT_TOKEN1; // API-ключ Telegram бота из секретов
     const telegramChatId = '@zaka_p'; // ID канала Telegram для отправки
 
     // Генерация уникального номера заявки
