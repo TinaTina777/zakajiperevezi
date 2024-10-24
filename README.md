@@ -1,4 +1,4 @@
-20:14
+00:05
 <html lang="ru">
 <head>
     <meta charset="UTF-8" />
@@ -226,12 +226,26 @@
             alert('Пожалуйста, исправьте ошибки в форме');
         }
     };
-    const escapeMarkdown = (text) => {
+ const escapeMarkdown = (text) => {
         const markdownChars = /([_*\[\]()~`>#+\-=|{}.!\\])/g;
         return text.replace(markdownChars, '\\$1');
     };
-// Формируем сообщение для отправки в Telegram (Markdown)
-            const markdownMessage = `
+    const submitForm = async () => {
+        const cargo = document.getElementById('cargo').value;
+        const dimensions = document.getElementById('dimensions').value;
+        const fromAddress = document.getElementById('fromAddress').value;
+        const toAddress = document.getElementById('toAddress').value;
+        const sendDate = document.getElementById('sendDate').value;
+        const telegram = document.getElementById('telegram').value;
+        const phone = document.getElementById('phone').value;
+
+        const validFromAddress = await validateAddress(fromAddress, 'fromAddressValidation');
+        const validToAddress = await validateAddress(toAddress, 'toAddressValidation');
+        const validTelegram = validateTelegram(telegram);
+        const validPhone = validatePhone(phone);
+        };
+    
+    const markdownMessage = `
 📋 *Номер заявки:* ${escapeMarkdown(orderNumber)}
 📦 *Наименование:* ${escapeMarkdown(cargo)}
 📏 *Габариты:* ${escapeMarkdown(dimensions)}
