@@ -1,4 +1,4 @@
-00:05
+
 <html lang="ru">
 <head>
     <meta charset="UTF-8" />
@@ -226,46 +226,9 @@
             alert('Пожалуйста, исправьте ошибки в форме');
         }
     };
- const escapeMarkdown = (text) => {
-        const markdownChars = /([_*\[\]()~`>#+\-=|{}.!\\])/g;
-        return text.replace(markdownChars, '\\$1');
-    };
-    const submitForm = async () => {
-        const cargo = document.getElementById('cargo').value;
-        const dimensions = document.getElementById('dimensions').value;
-        const fromAddress = document.getElementById('fromAddress').value;
-        const toAddress = document.getElementById('toAddress').value;
-        const sendDate = document.getElementById('sendDate').value;
-        const telegram = document.getElementById('telegram').value;
-        const phone = document.getElementById('phone').value;
 
-        const validFromAddress = await validateAddress(fromAddress, 'fromAddressValidation');
-        const validToAddress = await validateAddress(toAddress, 'toAddressValidation');
-        const validTelegram = validateTelegram(telegram);
-        const validPhone = validatePhone(phone);
-        };
-    
-    const markdownMessage = `
-📋 *Номер заявки:* ${escapeMarkdown(orderNumber)}
-📦 *Наименование:* ${escapeMarkdown(cargo)}
-📏 *Габариты:* ${escapeMarkdown(dimensions)}
-🏚️ *Адрес отправления:* ${escapeMarkdown(validFromAddress)}
-🏠 *Адрес доставки:* ${escapeMarkdown(validToAddress)}
-📅 *Дата отправки:* ${escapeMarkdown(new Date(sendDate).toLocaleDateString('ru-RU'))}
-⛟ *[Маршрут в Яндекс.Картах](https://yandex.ru/maps/?rtext=${encodeURIComponent(validFromAddress)}~${encodeURIComponent(validToAddress)}&rtt=auto)*
-➤ *Предложения по цене присылать:* [t.me/${escapeMarkdown(telegram)}](https://t.me/${escapeMarkdown(telegram)})
-📲 *Телефон для связи:* +7${escapeMarkdown(validPhone.slice(1))}
-            `;
-
-            // Отправка сообщения в Telegram
-            sendToTelegram(markdownMessage);
-        } else {
-            alert('Пожалуйста, исправьте ошибки в форме');
-        }
-    };
-
-    // Функция отправки сообщения в Telegram
-    const sendToTelegram = (message) => {
+    const sendToTelegram = () => {
+        const message = document.getElementById('output').innerText;
         const url = `https://api.telegram.org/bot${telegramBotToken}/sendMessage`;
 
         fetch(url, {
@@ -276,7 +239,7 @@
             body: JSON.stringify({
                 chat_id: telegramChatId,
                 text: message,
-                parse_mode: 'MarkdownV2',
+                parse_mode: 'HTML',
             }),
         })
         .then((response) => response.json())
