@@ -225,9 +225,32 @@
             alert('Пожалуйста, исправьте ошибки в форме');
         }
     };
+    const escapeMarkdown = (text) => {
+        const markdownChars = /([_*\[\]()~`>#+\-=|{}.!\\])/g;
+        return text.replace(markdownChars, '\\$1');
+    };
+// Формируем сообщение для отправки в Telegram (Markdown)
+            const markdownMessage = `
+📋 *Номер заявки:* ${escapeMarkdown(orderNumber)}
+📦 *Наименование:* ${escapeMarkdown(cargo)}
+📏 *Габариты:* ${escapeMarkdown(dimensions)}
+🏚️ *Адрес отправления:* ${escapeMarkdown(validFromAddress)}
+🏠 *Адрес доставки:* ${escapeMarkdown(validToAddress)}
+📅 *Дата отправки:* ${escapeMarkdown(new Date(sendDate).toLocaleDateString('ru-RU'))}
+⛟ *[Маршрут в Яндекс.Картах](https://yandex.ru/maps/?rtext=${encodeURIComponent(validFromAddress)}~${encodeURIComponent(validToAddress)}&rtt=auto)*
+➤ *Предложения по цене присылать:* [t.me/${escapeMarkdown(telegram)}](https://t.me/${escapeMarkdown(telegram)})
+📲 *Телефон для связи:* +7${escapeMarkdown(validPhone.slice(1))}
+            `;
 
-    const sendToTelegram = () => {
-        const message = document.getElementById('output').innerText;
+            // Отправка сообщения в Telegram
+            sendToTelegram(markdownMessage);
+        } else {
+            alert('Пожалуйста, исправьте ошибки в форме');
+        }
+    };
+
+    // Функция отправки сообщения в Telegram
+    const sendToTelegram = (message) => {
         const url = `https://api.telegram.org/bot${telegramBotToken}/sendMessage`;
 
         fetch(url, {
@@ -238,7 +261,7 @@
             body: JSON.stringify({
                 chat_id: telegramChatId,
                 text: message,
-                parse_mode: 'HTML',
+                parse_mode: 'MarkdownV2',
             }),
         })
         .then((response) => response.json())
